@@ -1,4 +1,4 @@
-use quercia::{Color, Colorize};
+use traccia::{Color, Colorize};
 
 fn main() {
     println!("{}", "This is a warning. ⚠️".color(Color::Yellow));
