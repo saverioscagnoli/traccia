@@ -22,6 +22,20 @@ impl Color {
             Color::White => "\x1b[37m",
         }
     }
- }
+}
 
- 
+pub trait Colorize {
+    fn color(&self, color: Color) -> String;
+}
+
+impl Colorize for str {
+    fn color(&self, color: Color) -> String {
+        format!("{}{}\x1b[0m", color.ansi_code(), self)
+    }
+}
+
+impl Colorize for String {
+    fn color(&self, color: Color) -> String {
+        format!("{}{}\x1b[0m", color.ansi_code(), self)
+    }
+}
