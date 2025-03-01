@@ -1,3 +1,11 @@
+/// Macro for logging messages at a specific level.
+///
+/// This is the core logging macro that other macros (`debug!`, `info!`, etc.) build upon.
+///
+/// # Arguments
+///
+/// * `$level` - The log level to use
+/// * `$arg` - Format string and arguments, similar to `format!` or `println!`
 #[macro_export]
 macro_rules! log {
    ($level:expr, $($arg:tt)*) => {{
@@ -17,6 +25,13 @@ macro_rules! log {
     }};
 }
 
+/// Logs a message at the TRACE level.
+///
+/// # Examples
+///
+/// ```
+/// trace!("Processing item: {}", item_id);
+/// ```
 #[macro_export]
 macro_rules! trace {
     ($($arg:tt)*) => {
@@ -24,6 +39,13 @@ macro_rules! trace {
     };
 }
 
+/// Logs a message at the DEBUG level.
+///
+/// # Examples
+///
+/// ```
+/// debug!("Connection established: {}", conn_id);
+/// ```
 #[macro_export]
 macro_rules! debug {
     ($($arg:tt)*) => {
@@ -31,6 +53,13 @@ macro_rules! debug {
     };
 }
 
+/// Logs a message at the INFO level.
+///
+/// # Examples
+///
+/// ```
+/// info!("Application started");
+/// ```
 #[macro_export]
 macro_rules! info {
     ($($arg:tt)*) => {
@@ -38,6 +67,13 @@ macro_rules! info {
     };
 }
 
+/// Logs a message at the WARN level.
+///
+/// # Examples
+///
+/// ```
+/// warn!("Resource usage high: {}%", usage);
+/// ```
 #[macro_export]
 macro_rules! warn {
     ($($arg:tt)*) => {
@@ -45,6 +81,13 @@ macro_rules! warn {
     };
 }
 
+/// Logs a message at the ERROR level.
+///
+/// # Examples
+///
+/// ```
+/// error!("Failed to connect: {}", err);
+/// ```
 #[macro_export]
 macro_rules! error {
     ($($arg:tt)*) => {
