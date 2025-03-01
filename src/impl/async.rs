@@ -99,7 +99,7 @@ impl Default for DefaultLogger {
     }
 }
 
-pub fn shutdown() {
+pub fn flush() {
     if let Ok(logger) = logger() {
         logger.abort();
     }

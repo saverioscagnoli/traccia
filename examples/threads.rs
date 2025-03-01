@@ -19,7 +19,7 @@ fn main() {
         handle.join().unwrap();
     }
 
-    // If not using the blocking feature, call `shutdown` function to flush the log buffer
+    // If not using the blocking feature, call `flush` function to flush the log buffer
     #[cfg(not(feature = "blocking"))]
-    traccia::shutdown();
+    traccia::flush();
 }

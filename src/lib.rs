@@ -46,7 +46,7 @@ pub use target::{Console, File, Target};
 pub use r#impl::blocking::DefaultLogger;
 
 #[cfg(not(feature = "blocking"))]
-pub use r#impl::r#async::{DefaultLogger, shutdown};
+pub use r#impl::r#async::{DefaultLogger, flush};
 
 /// Represents a single log record with all relevant metadata.
 ///

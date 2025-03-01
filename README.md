@@ -1,4 +1,4 @@
-# Traccia
+# Traccia 📝
 
 A zero-dependency, all-in-one flexible logging framework for Rust applications.
 
@@ -152,7 +152,7 @@ This will be the default implementation.
 If you wish to change to a blocking logger,
 enable the `blocking` feature.
 
-NOTE: You must call the shutdown function in this mode, as the secondary thread needs to be notified to flush the buffer.
+NOTE: You must call the flush function in this mode, as the secondary thread needs to be notified to flush the buffer.
 
 ```rust
 use traccia::{init_with_config, Config, LogLevel};
@@ -165,7 +165,7 @@ fn main() {
     info!("Async logging enabled");
 
     // When application exits
-    traccia::shutdown();
+    traccia::flush();
 }
 ```
 
