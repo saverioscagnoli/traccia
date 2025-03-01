@@ -1,6 +1,4 @@
 /// Target module defining output destinations for log messages.
-use dyn_clone::DynClone;
-
 use crate::{error::Error, util};
 use std::{
     fs::{self, OpenOptions},
@@ -10,13 +8,27 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+/// Workaround to be able to clone boxed trait objects.
+pub trait TargetClone {
+    fn clone_box(&self) -> Box<dyn Target>;
+}
+
+impl<T> TargetClone for T
+where
+    T: 'static + Target + Clone,
+{
+    fn clone_box(&self) -> Box<dyn Target> {
+        Box::new(self.clone())
+    }
+}
+
 /// Defines an output destination for log messages.
 ///
 /// This trait allows the logger to write formatted messages to different
 /// destinations such as console, files, or custom targets.
 ///
 /// Implementors must be thread-safe (Send + Sync) and cloneable.
-pub trait Target: Send + Sync + DynClone {
+pub trait Target: Send + Sync + TargetClone {
     /// Writes a formatted log message to the target.
     ///
     /// # Arguments
@@ -29,7 +41,11 @@ pub trait Target: Send + Sync + DynClone {
     fn write(&self, formatted: &str) -> Result<(), Error>;
 }
 
-dyn_clone::clone_trait_object!(Target);
+impl Clone for Box<dyn Target> {
+    fn clone(&self) -> Self {
+        self.clone_box()
+    }
+}
 
 /// Standard console output target.
 ///
