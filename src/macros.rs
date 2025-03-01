@@ -1,6 +1,6 @@
 #[macro_export]
 macro_rules! log {
-    ($level:expr, $($arg:tt)*) => {{
+   ($level:expr, $($arg:tt)*) => {{
         if let Ok(logger) = $crate::logger() {
             let record = $crate::Record {
                 level: $level,
@@ -11,6 +11,7 @@ macro_rules! log {
                 line: Some(line!()),
             };
 
+            use $crate::Logger;
             logger.log(&record);
         }
     }};

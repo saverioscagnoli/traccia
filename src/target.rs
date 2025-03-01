@@ -1,16 +1,21 @@
+use dyn_clone::DynClone;
+
 use crate::{error::Error, util};
 use std::{
     fs::{self, OpenOptions},
     io::Write,
     ops::Deref,
     path::Path,
-    sync::Mutex,
+    sync::{Arc, Mutex},
 };
 
-pub trait Target: Send + Sync {
+pub trait Target: Send + Sync + DynClone {
     fn write(&self, formatted: &str) -> Result<(), Error>;
 }
 
+dyn_clone::clone_trait_object!(Target);
+
+#[derive(Clone)]
 pub struct Console;
 
 impl Target for Console {
@@ -20,7 +25,8 @@ impl Target for Console {
     }
 }
 
-pub struct File(Mutex<fs::File>);
+#[derive(Clone)]
+pub struct File(Arc<Mutex<fs::File>>);
 
 impl Deref for File {
     type Target = Mutex<fs::File>;
@@ -42,7 +48,7 @@ impl File {
         }
 
         let file = OpenOptions::new().create(true).append(true).open(path)?;
-        Ok(File(Mutex::new(file)))
+        Ok(File(Arc::new(Mutex::new(file))))
     }
 }
 

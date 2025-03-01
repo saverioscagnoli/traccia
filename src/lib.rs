@@ -5,7 +5,14 @@ mod macros;
 mod target;
 mod util;
 
-use std::{fmt::Display, sync::OnceLock};
+use std::{
+    fmt::Display,
+    sync::{
+        Mutex, OnceLock,
+        mpsc::{self, Receiver},
+    },
+    thread,
+};
 
 // Exports
 pub use color::{Color, Colorize};
@@ -46,6 +53,7 @@ impl LogLevel {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct Record {
     pub level: LogLevel,
     pub target: String,
@@ -56,8 +64,9 @@ pub struct Record {
 }
 
 pub trait Logger: Send + Sync {
-    fn log(&self, record: &Record);
     fn enabled(&self, level: LogLevel) -> bool;
+    fn log(&self, record: &Record);
+    fn abort(&self);
 }
 
 pub struct Config {
@@ -86,13 +95,63 @@ impl Default for Config {
     }
 }
 
+enum Message {
+    Record(String),
+    Terminate,
+}
+
 pub struct AsyncLogger {
     config: Config,
+    tx: mpsc::Sender<Message>,
+    worker: Mutex<Option<thread::JoinHandle<()>>>,
 }
 
 impl AsyncLogger {
     pub fn new(config: Config) -> Self {
-        AsyncLogger { config }
+        let (tx, rx) = mpsc::channel();
+
+        let thread_targets = dyn_clone::clone_box(&config.targets);
+        let worker = thread::spawn(move || {
+            Self::worker_thread(rx, *thread_targets);
+        });
+
+        AsyncLogger {
+            config,
+            tx,
+            worker: Mutex::new(Some(worker)),
+        }
+    }
+
+    fn worker_thread(rx: Receiver<Message>, targets: Vec<Box<dyn Target>>) {
+        loop {
+            match rx.recv() {
+                Ok(Message::Record(formatted)) => {
+                    for target in &targets {
+                        if let Err(e) = target.write(&formatted) {
+                            eprintln!("Failed to write to target: {}", e);
+                        }
+                    }
+                }
+
+                Ok(Message::Terminate) => break,
+
+                Err(_) => break,
+            }
+        }
+
+        // Drain the remaining messages
+        while let Ok(message) = rx.try_recv() {
+            match message {
+                Message::Record(formatted) => {
+                    for target in &targets {
+                        if let Err(e) = target.write(&formatted) {
+                            eprintln!("Failed to write to target: {}", e);
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
     }
 }
 
@@ -117,9 +176,15 @@ impl Logger for AsyncLogger {
             None => format::DefaultFormatter.format(record),
         };
 
-        for target in &self.config.targets {
-            if let Err(e) = target.write(&formatted) {
-                eprintln!("Failed to write to target: {}", e);
+        let _ = self.tx.send(Message::Record(formatted));
+    }
+
+    fn abort(&self) {
+        let _ = self.tx.send(Message::Terminate);
+
+        if let Ok(mut handle) = self.worker.lock() {
+            if let Some(handle) = handle.take() {
+                handle.join().ok();
             }
         }
     }
@@ -145,8 +210,20 @@ pub fn init(level: LogLevel) {
     set_logger(logger).expect("Failed to initalize logger");
 }
 
+pub fn init_default() {
+    let logger = AsyncLogger::default();
+
+    set_logger(logger).expect("Failed to initalize logger");
+}
+
 pub fn init_with_config(config: Config) {
     let logger = AsyncLogger::new(config);
 
     set_logger(logger).expect("Failed to initalize logger");
+}
+
+pub fn shutdown() {
+    if let Ok(logger) = logger() {
+        logger.abort();
+    }
 }
