@@ -1,57 +1,26 @@
 mod color;
 mod error;
 mod format;
+mod r#impl;
+mod level;
 mod macros;
 mod target;
 mod util;
 
-use std::{
-    fmt::Display,
-    sync::{
-        Mutex, OnceLock,
-        mpsc::{self, Receiver},
-    },
-    thread,
-};
+use std::sync::OnceLock;
 
 // Exports
 pub use color::{Color, Colorize};
 pub use error::Error;
 pub use format::{DefaultFormatter, Formatter};
+pub use level::LogLevel;
 pub use target::{Console, File, Target};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub enum LogLevel {
-    Trace,
-    Debug,
-    Info,
-    Warn,
-    Error,
-}
+#[cfg(feature = "blocking")]
+pub use r#impl::blocking::DefaultLogger;
 
-impl Display for LogLevel {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            LogLevel::Trace => write!(f, "TRACE"),
-            LogLevel::Debug => write!(f, "DEBUG"),
-            LogLevel::Info => write!(f, "INFO"),
-            LogLevel::Warn => write!(f, "WARN"),
-            LogLevel::Error => write!(f, "ERROR"),
-        }
-    }
-}
-
-impl LogLevel {
-    pub fn default_coloring(&self) -> String {
-        match self {
-            LogLevel::Trace => format!("{}", self).color(Color::Cyan),
-            LogLevel::Debug => format!("{}", self).color(Color::Blue),
-            LogLevel::Info => format!("{}", self).color(Color::Green),
-            LogLevel::Warn => format!("{}", self).color(Color::Yellow),
-            LogLevel::Error => format!("{}", self).color(Color::Red),
-        }
-    }
-}
+#[cfg(not(feature = "blocking"))]
+pub use r#impl::r#async::{DefaultLogger, shutdown};
 
 #[derive(Debug, Clone)]
 pub struct Record {
@@ -66,6 +35,8 @@ pub struct Record {
 pub trait Logger: Send + Sync {
     fn enabled(&self, level: LogLevel) -> bool;
     fn log(&self, record: &Record);
+
+    #[cfg(not(feature = "blocking"))]
     fn abort(&self);
 }
 
@@ -95,101 +66,6 @@ impl Default for Config {
     }
 }
 
-enum Message {
-    Record(String),
-    Terminate,
-}
-
-pub struct AsyncLogger {
-    config: Config,
-    tx: mpsc::Sender<Message>,
-    worker: Mutex<Option<thread::JoinHandle<()>>>,
-}
-
-impl AsyncLogger {
-    pub fn new(config: Config) -> Self {
-        let (tx, rx) = mpsc::channel();
-
-        let thread_targets = dyn_clone::clone_box(&config.targets);
-        let worker = thread::spawn(move || {
-            Self::worker_thread(rx, *thread_targets);
-        });
-
-        AsyncLogger {
-            config,
-            tx,
-            worker: Mutex::new(Some(worker)),
-        }
-    }
-
-    fn worker_thread(rx: Receiver<Message>, targets: Vec<Box<dyn Target>>) {
-        loop {
-            match rx.recv() {
-                Ok(Message::Record(formatted)) => {
-                    for target in &targets {
-                        if let Err(e) = target.write(&formatted) {
-                            eprintln!("Failed to write to target: {}", e);
-                        }
-                    }
-                }
-
-                Ok(Message::Terminate) => break,
-
-                Err(_) => break,
-            }
-        }
-
-        // Drain the remaining messages
-        while let Ok(message) = rx.try_recv() {
-            match message {
-                Message::Record(formatted) => {
-                    for target in &targets {
-                        if let Err(e) = target.write(&formatted) {
-                            eprintln!("Failed to write to target: {}", e);
-                        }
-                    }
-                }
-                _ => {}
-            }
-        }
-    }
-}
-
-impl Default for AsyncLogger {
-    fn default() -> Self {
-        AsyncLogger::new(Config::default())
-    }
-}
-
-impl Logger for AsyncLogger {
-    fn enabled(&self, level: LogLevel) -> bool {
-        self.config.level <= level
-    }
-
-    fn log(&self, record: &Record) {
-        if !self.enabled(record.level) {
-            return;
-        }
-
-        let formatted = match &self.config.format {
-            Some(formatter) => formatter.format(record),
-            None => format::DefaultFormatter.format(record),
-        };
-
-        let _ = self.tx.send(Message::Record(formatted));
-    }
-
-    fn abort(&self) {
-        let _ = self.tx.send(Message::Terminate);
-
-        if let Ok(mut handle) = self.worker.lock() {
-            if let Some(handle) = handle.take() {
-                handle.join().ok();
-            }
-        }
-    }
-}
-
 static LOGGER: OnceLock<Box<dyn Logger>> = OnceLock::new();
 
 fn set_logger<L: Logger + 'static>(logger: L) -> Result<(), Error> {
@@ -205,25 +81,17 @@ pub fn logger() -> Result<&'static Box<dyn Logger>, Error> {
 
 pub fn init(level: LogLevel) {
     let config = Config::default_with_level(level);
-    let logger = AsyncLogger::new(config);
+    let logger = DefaultLogger::new(config);
 
     set_logger(logger).expect("Failed to initalize logger");
 }
 
 pub fn init_default() {
-    let logger = AsyncLogger::default();
-
+    let logger = DefaultLogger::default();
     set_logger(logger).expect("Failed to initalize logger");
 }
 
 pub fn init_with_config(config: Config) {
-    let logger = AsyncLogger::new(config);
-
+    let logger = DefaultLogger::new(config);
     set_logger(logger).expect("Failed to initalize logger");
-}
-
-pub fn shutdown() {
-    if let Ok(logger) = logger() {
-        logger.abort();
-    }
 }

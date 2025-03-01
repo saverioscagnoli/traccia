@@ -18,6 +18,4 @@ fn main() {
     for handle in handles {
         handle.join().unwrap();
     }
-
-    traccia::shutdown();
 }
