@@ -2,6 +2,49 @@
 name = "traccia"
 version = "0.1.0"
 edition = "2024"
+authors = ["Saverio Scagnoli <svscagn@gmail.com>"]
+description = "A zero-dependency, flexible logging framework for Rust applications"
+documentation = "https://docs.rs/traccia"
+repository = "https://github.com/saverioscagnoli/traccia"
+homepage = "https://github.com/saverioscagnoli/traccia"
+license = "MIT"
+readme = "README.md"
+keywords = ["logging", "log", "logger", "async", "terminal"]
+categories = ["development-tools::debugging"]
 
 [features]
+default = []
 blocking = []
+
+[dependencies]
+# No external dependencies by default, keeping it lightweight
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[package.metadata.playground]
+features = ["blocking"]
+
+[[example]]
+name = "basic"
+required-features = []
+
+[[example]]
+name = "target"
+required-features = []
+
+[[example]]
+name = "threads"
+required-features = []
+
+[[example]]
+name = "custom-format"
+required-features = []
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+opt-level = 3
