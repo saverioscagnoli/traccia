@@ -20,9 +20,9 @@ impl DefaultLogger {
     pub fn new(config: Config) -> Self {
         let (sender, receiver) = mpsc::channel();
 
-        let thread_targerts = dyn_clone::clone_box(&config.targets);
+        let thread_targerts = config.targets.clone();
         let worker = std::thread::spawn(move || {
-            Self::worker_thread(receiver, *thread_targerts);
+            Self::worker_thread(receiver, thread_targerts);
         });
 
         DefaultLogger {
