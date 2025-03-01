@@ -12,6 +12,12 @@ readme = "README.md"
 keywords = ["logging", "log", "logger", "async", "terminal"]
 categories = ["development-tools::debugging"]
 
+exclude = [
+    ".vscode",
+    ".gitignore",
+    "Cargo.lock",
+]
+
 [features]
 default = []
 blocking = []
