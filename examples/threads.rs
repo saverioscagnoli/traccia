@@ -1,7 +1,27 @@
-use traccia::LogLevel;
+use traccia::{LogLevel, Record};
+
+struct CustomFormatter;
+
+impl traccia::Formatter for CustomFormatter {
+    fn format(&self, record: &Record) -> String {
+        let id_str = format!("{:?}", record.thread_id);
+        let id_str = id_str.replace("ThreadId(", "").replace(")", "");
+
+        format!(
+            "[{}] [thread:{}] {}",
+            record.level.default_coloring(),
+            id_str,
+            record.message,
+        )
+    }
+}
 
 fn main() {
-    traccia::init(LogLevel::Trace);
+    traccia::init_with_config(traccia::Config {
+        level: LogLevel::Trace,
+        format: Some(Box::new(CustomFormatter)),
+        ..Default::default()
+    });
 
     let handles = (0..3)
         .map(|i| {

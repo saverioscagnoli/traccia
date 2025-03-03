@@ -12,6 +12,7 @@ macro_rules! log {
         if let Ok(logger) = $crate::logger() {
             let record = $crate::Record {
                 level: $level,
+                thread_id: std::thread::current().id(),
                 target: module_path!().to_string(),
                 message: format!($($arg)*),
                 module_path: Some(module_path!()),

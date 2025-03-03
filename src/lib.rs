@@ -33,14 +33,14 @@ mod macros;
 mod target;
 mod util;
 
-use std::sync::OnceLock;
+use std::{sync::OnceLock, thread::ThreadId};
 
 // Exports
 pub use color::{Color, Colorize};
 pub use error::Error;
 pub use format::{DefaultFormatter, Formatter};
 pub use level::LogLevel;
-pub use target::{Console, File, Target};
+pub use target::{Console, File, FileMode, Target};
 
 #[cfg(feature = "blocking")]
 pub use r#impl::blocking::DefaultLogger;
@@ -56,6 +56,9 @@ pub use r#impl::r#async::{DefaultLogger, flush};
 pub struct Record {
     /// The severity level of the log message.
     pub level: LogLevel,
+
+    /// The thread ID where the log was generated.
+    pub thread_id: ThreadId,
 
     /// The target component or category for the log message.
     pub target: String,
