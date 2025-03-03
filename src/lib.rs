@@ -1,29 +1,29 @@
-/// A lightweight, flexible logging framework for Rust applications.
-///
-/// This crate provides a configurable logging system that supports multiple output targets,
-/// customizable formatting, and different log levels. It can be used in both synchronous (blocking)
-/// and asynchronous contexts.
-///
-/// # Features
-///
-/// * Multiple log levels (Debug, Info, Warning, Error)
-/// * Multiple output targets (Console, File)
-/// * Customizable log formatting
-/// * Async and blocking implementations
-///
-/// # Example
-///
-/// ```rust,ignore
-/// use logger::{init, LogLevel};
-///
-/// // Initialize with Info level
-/// init(LogLevel::Info);
-///
-/// // Log messages
-/// info!("Application started");
-/// debug!("This won't be displayed with Info level");
-/// error!("Something went wrong: {}", error);
-/// ```
+//! A lightweight, flexible logging framework for Rust applications.
+//!
+//! This crate provides a configurable logging system that supports multiple output targets,
+//! customizable formatting, and different log levels. It can be used in both synchronous (blocking)
+//! and asynchronous contexts.
+//!
+//! # Features
+//!
+//! * Multiple log levels (Debug, Info, Warning, Error)
+//! * Multiple output targets (Console, File)
+//! * Customizable log formatting
+//! * Async and blocking implementations
+//!
+//! # Example
+//!
+//! ```rust,ignore
+//! use logger::{init, LogLevel};
+//!
+//! // Initialize with Info level
+//! init(LogLevel::Info);
+//!
+//! // Log messages
+//! info!("Application started");
+//! debug!("This won't be displayed with Info level");
+//! error!("Something went wrong: {}", error);
+//! ```
 mod color;
 mod error;
 mod format;

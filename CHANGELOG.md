@@ -13,3 +13,9 @@
 # 0.2.1 - 3/3/2025
 
 - Added some preview image to README.
+
+# 0.2.2 - 3/3/2025
+
+- Removed the docs folder from the package, that caused the size to go up to 450 KiB
+- Renamed CHANGELOG to CHANGELOG.md
+- Replaced `///` comments with `//!` comments in `lib.rs`

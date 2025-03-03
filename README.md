@@ -45,7 +45,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-traccia = "0.2.1"
+traccia = "0.2.2"
 ```
 
 ## Quick Start
