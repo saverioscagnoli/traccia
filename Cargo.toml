@@ -21,9 +21,6 @@ exclude = [
 [features]
 default = []
 blocking = []
-
-[dependencies]
-chrono = "0.4.40"
 # No external dependencies by default, keeping it lightweight
 
 [package.metadata.docs.rs]
