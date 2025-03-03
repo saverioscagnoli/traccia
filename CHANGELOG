@@ -1,0 +1,11 @@
+# 0.2.0 - 3/3/2025
+
+- Added `Debug, Clone, Copy, PartialEq, Eq` to `Color`.
+
+- Added `mode` parameter to the file target,
+  to specify whether to append to or to truncate the file on start.
+
+- Added a `thread_id` field to the record structure, to identify the thread
+  where the log was generated.
+
+  - The `threads` example was updated to demonstrate this functionality.

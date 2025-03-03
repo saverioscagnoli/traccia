@@ -70,6 +70,21 @@ impl Target for Console {
     }
 }
 
+/// File open mode for writing log messages.
+/// - `Append`: Open the file in append mode, preserving existing content
+/// - `Truncate`: Open the file in write mode, truncating existing content
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FileMode {
+    Append,
+    Truncate,
+}
+
+impl Default for FileMode {
+    fn default() -> Self {
+        FileMode::Append
+    }
+}
+
 /// File output target.
 ///
 /// This target writes log messages to a file on disk.
@@ -93,7 +108,8 @@ impl File {
     ///
     /// # Arguments
     ///
-    /// * `path` - Path to the log file
+    /// * `path` - Path to the log file'
+    /// * `mode` - File open mode (default: `Append`)
     ///
     /// # Returns
     ///
@@ -111,7 +127,7 @@ impl File {
     /// };
     /// init_with_config(config);
     /// ```
-    pub fn new<P>(path: P) -> Result<Self, Error>
+    pub fn new<P>(path: P, mode: FileMode) -> Result<Self, Error>
     where
         P: AsRef<Path>,
     {
@@ -121,7 +137,21 @@ impl File {
             fs::create_dir_all(parent)?;
         }
 
-        let file = OpenOptions::new().create(true).append(true).open(path)?;
+        let mut options = OpenOptions::new();
+
+        options.create(true);
+
+        match mode {
+            FileMode::Append => {
+                options.append(true);
+            }
+
+            FileMode::Truncate => {
+                options.write(true).truncate(true);
+            }
+        }
+
+        let file = options.open(path)?;
         Ok(File(Arc::new(Mutex::new(file))))
     }
 }

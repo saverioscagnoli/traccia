@@ -7,6 +7,7 @@
 /// Terminal colors for text output.
 ///
 /// Represents the standard 8 ANSI colors available in most terminals.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Color {
     /// Black color (ANSI code 30)
     Black,
