@@ -24,12 +24,12 @@
 //! debug!("This won't be displayed with Info level");
 //! error!("Something went wrong: {}", error);
 //! ```
-mod color;
 mod error;
 mod format;
 mod r#impl;
 mod level;
 mod macros;
+mod strings;
 mod target;
 mod util;
 
@@ -39,10 +39,10 @@ mod shutdown;
 use std::{sync::OnceLock, thread::ThreadId};
 
 // Exports
-pub use color::{Color, Colorize};
 pub use error::Error;
 pub use format::{DefaultFormatter, Formatter};
 pub use level::LogLevel;
+pub use strings::{Color, Colorize, Style};
 pub use target::{Console, File, FileMode, Target};
 
 #[cfg(feature = "blocking")]
