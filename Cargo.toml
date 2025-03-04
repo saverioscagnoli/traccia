@@ -16,7 +16,6 @@ exclude = [
     ".vscode",
     ".gitignore",
     "Cargo.lock",
-    "examples",
     "docs",
     "CHANGELOG.md"
 ]
