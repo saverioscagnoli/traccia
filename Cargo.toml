@@ -1,6 +1,6 @@
 [package]
 name = "traccia"
-version = "0.2.2"
+version = "1.2.2"
 edition = "2024"
 authors = ["Saverio Scagnoli <svscagn@gmail.com>"]
 description = "A zero-dependency, flexible logging framework for Rust applications"
@@ -24,7 +24,6 @@ exclude = [
 [features]
 default = []
 blocking = []
-# No external dependencies by default, keeping it lightweight
 
 [package.metadata.docs.rs]
 all-features = true
