@@ -10,4 +10,7 @@ fn main() {
     info!("This is an info message");
     warn!("This is a warn message");
     error!("This is an error message");
+
+    #[cfg(not(feature = "blocking"))]
+    traccia::flush();
 }
