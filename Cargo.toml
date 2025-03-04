@@ -15,7 +15,6 @@ categories = ["development-tools::debugging"]
 exclude = [
     ".vscode",
     ".gitignore",
-    "Cargo.lock",
     "docs",
     "CHANGELOG.md"
 ]
