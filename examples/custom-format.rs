@@ -26,8 +26,4 @@ fn main() {
     info!("This is an info message");
     warn!("This is a warn message");
     error!("This is an error message");
-
-    // If not using the blocking feature, call `flush` function to flush the log buffer
-    #[cfg(not(feature = "blocking"))]
-    traccia::flush();
 }

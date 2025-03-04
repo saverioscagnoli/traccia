@@ -1,3 +1,5 @@
+All the dates in this changelog are formatted as day/month/year.
+
 # 0.2.0 - 3/3/2025
 
 - Added `Debug, Clone, Copy, PartialEq, Eq` to `Color`.
@@ -19,3 +21,8 @@
 - Removed the docs folder from the package, that caused the size to go up to 450 KiB
 - Renamed CHANGELOG to CHANGELOG.md
 - Replaced `///` comments with `//!` comments in `lib.rs`
+
+# 1.2.2 - 4/3/2025
+
+- Removed the `flush` function and changed all examples accordingly.
+- Added a wrapper around libc's `atexit` to create a shutdown hook that flushes the log buffer automatically.

@@ -33,6 +33,9 @@ mod macros;
 mod target;
 mod util;
 
+#[cfg(not(feature = "blocking"))]
+mod shutdown;
+
 use std::{sync::OnceLock, thread::ThreadId};
 
 // Exports
@@ -46,7 +49,7 @@ pub use target::{Console, File, FileMode, Target};
 pub use r#impl::blocking::DefaultLogger;
 
 #[cfg(not(feature = "blocking"))]
-pub use r#impl::r#async::{DefaultLogger, flush};
+pub use r#impl::r#async::DefaultLogger;
 
 /// Represents a single log record with all relevant metadata.
 ///
@@ -177,7 +180,16 @@ static LOGGER: OnceLock<Box<dyn Logger>> = OnceLock::new();
 /// `Ok(())` if successful, or `Error::AlreadyInitialized` if a logger is already set
 fn set_logger<L: Logger + 'static>(logger: L) -> Result<(), Error> {
     match LOGGER.set(Box::new(logger)) {
-        Ok(_) => Ok(()),
+        Ok(_) => {
+            #[cfg(not(feature = "blocking"))]
+            shutdown::add_hook(|| {
+                if let Some(logger) = LOGGER.get() {
+                    logger.abort();
+                }
+            });
+
+            Ok(())
+        }
         Err(_) => Err(Error::AlreadyInitialized),
     }
 }

@@ -22,9 +22,6 @@ A zero-dependency, all-in-one flexible logging framework for Rust applications.
   </div>
 </div>
 
-
-
-
 ## Overview
 
 This crate provides a configurable logging system that supports multiple output targets, customizable formatting, and different log levels. It can be used in both synchronous (blocking) and asynchronous contexts.
@@ -45,7 +42,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-traccia = "0.2.2"
+traccia = "1.2.2"
 ```
 
 ## Quick Start
@@ -174,9 +171,6 @@ init_with_config(config);
 This will be the default implementation.
 If you wish to change to a blocking logger,
 enable the `blocking` feature.
-
-NOTE: You must call the flush function in this mode, as the secondary thread needs to be notified to flush the buffer.
-
 ```rust
 use traccia::{init_with_config, Config, LogLevel};
 
@@ -186,9 +180,6 @@ fn main() {
 
     // Log messages
     info!("Async logging enabled");
-
-    // When application exits
-    traccia::flush();
 }
 ```
 

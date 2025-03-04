@@ -3,7 +3,7 @@ use std::{
     thread,
 };
 
-use crate::{Config, DefaultFormatter, Formatter, Logger, Record, Target, logger};
+use crate::{Config, DefaultFormatter, Formatter, Logger, Record, Target};
 
 enum ChannelMessage {
     Log(String),
@@ -96,11 +96,5 @@ impl Logger for DefaultLogger {
 impl Default for DefaultLogger {
     fn default() -> Self {
         DefaultLogger::new(Config::default())
-    }
-}
-
-pub fn flush() {
-    if let Ok(logger) = logger() {
-        logger.abort();
     }
 }
