@@ -26,3 +26,8 @@ All the dates in this changelog are formatted as day/month/year.
 
 - Removed the `flush` function and changed all examples accordingly.
 - Added a wrapper around libc's `atexit` to create a shutdown hook that flushes the log buffer automatically.
+
+# 1.3.2 - 5/3/2025
+
+- Added the `style` trait, that enables the user for more string customization.
+- Added the `background` function to the `Colorize` trait, so that the user can change the background color of the contents.
