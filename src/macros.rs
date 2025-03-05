@@ -95,3 +95,17 @@ macro_rules! error {
         $crate::log!($crate::LogLevel::Error, $($arg)*)
     };
 }
+
+/// Logs a message at the FATAL level.
+///
+/// # Examples
+///
+/// ```
+/// fatal!("Failed to start application: {}", err);
+/// ```
+#[macro_export]
+macro_rules! fatal {
+    ($($arg:tt)*) => {
+        $crate::log!($crate::LogLevel::Fatal, $($arg)*)
+    };
+}
