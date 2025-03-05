@@ -120,7 +120,7 @@ impl Color {
 /// Trait for applying colors to strings.
 ///
 /// This trait provides the ability to color text using ANSI escape codes.
-pub trait Colorize {
+pub trait Colorize: Display {
     /// Applies a color to the string.
     ///
     /// # Arguments
@@ -130,13 +130,11 @@ pub trait Colorize {
     /// # Returns
     ///
     /// A new string with the color applied via ANSI escape codes
-    fn color(&self, color: Color) -> String;
+    fn color(&self, color: Color) -> String {
+        format!("{}{}\x1b[0m", color.ansi_code_foreground(), self)
+    }
 
-    fn background(&self, color: Color) -> String;
-}
-
-impl Colorize for str {
-    /// Applies a color to a string slice.
+    /// Applies a background color to the string.
     ///
     /// # Arguments
     ///
@@ -144,81 +142,52 @@ impl Colorize for str {
     ///
     /// # Returns
     ///
-    /// A new string with the color applied
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use logger::{Color, Colorize};
-    ///
-    /// let colored = "Warning".color(Color::Yellow);
-    /// ```
-    fn color(&self, color: Color) -> String {
-        format!("{}{}\x1b[0m", color.ansi_code_foreground(), self)
-    }
-
+    /// A new string with the background color applied via ANSI escape codes
     fn background(&self, color: Color) -> String {
         format!("{}{}\x1b[0m", color.ansi_code_background(), self)
     }
 }
 
-impl Colorize for String {
-    /// Applies a color to a String.
-    ///
-    /// # Arguments
-    ///
-    /// * `color` - The color to apply
-    ///
-    /// # Returns
-    ///
-    /// A new string with the color applied
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use logger::{Color, Colorize};
-    ///
-    /// let message = String::from("Error occurred");
-    /// let colored = message.color(Color::Red);
-    /// ```
-    fn color(&self, color: Color) -> String {
-        format!("{}{}\x1b[0m", color.ansi_code_foreground(), self)
-    }
-
-    fn background(&self, color: Color) -> String {
-        format!("{}{}\x1b[0m", color.ansi_code_background(), self)
-    }
-}
+impl Colorize for str {}
+impl Colorize for String {}
 
 pub trait Style: Display {
+    /// Applies bold style to the string.
     fn bold(&self) -> String {
         format!("\x1b[1m{}\x1b[0m", self)
     }
 
+    /// Dims the color of the string.
     fn dim(&self) -> String {
         format!("\x1b[2m{}\x1b[0m", self)
     }
 
+    /// Applies italic style to the string.
     fn italic(&self) -> String {
         format!("\x1b[3m{}\x1b[0m", self)
     }
 
+    /// Underlines the string.
     fn underline(&self) -> String {
         format!("\x1b[4m{}\x1b[0m", self)
     }
 
+    /// Makes the content of the string blink.
     fn blink(&self) -> String {
         format!("\x1b[5m{}\x1b[0m", self)
     }
 
+    /// Reverses the foreground and background colors of the string.
     fn reverse(&self) -> String {
         format!("\x1b[7m{}\x1b[0m", self)
     }
 
+    /// Hides the content of the string with the background color.
     fn hidden(&self) -> String {
         format!("\x1b[8m{}\x1b[0m", self)
     }
 
+    /// Strikes through the content of the string.
     fn striketrough(&self) -> String {
         format!("\x1b[9m{}\x1b[0m", self)
     }
