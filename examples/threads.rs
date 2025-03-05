@@ -31,6 +31,7 @@ fn main() {
                 traccia::info!("This is an info message from thread {}", i);
                 traccia::warn!("This is a warn message from thread {}", i);
                 traccia::error!("This is an error message from thread {}", i);
+                traccia::fatal!("This is a fatal message from thread {}", i);
             })
         })
         .collect::<Vec<_>>();

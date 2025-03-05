@@ -1,4 +1,4 @@
-use traccia::{LogLevel, debug, error, info, trace, warn};
+use traccia::{LogLevel, debug, error, fatal, info, trace, warn};
 
 fn main() {
     traccia::init(LogLevel::Debug);
@@ -10,4 +10,5 @@ fn main() {
     info!("This is an info message");
     warn!("This is a warn message");
     error!("This is an error message");
+    fatal!("This is a fatal message");
 }

@@ -19,8 +19,10 @@ pub enum LogLevel {
     Info,
     /// Potentially harmful situations
     Warn,
-    /// Error events
+    /// Error events, Could still allow the application to continue running
     Error,
+    /// Fatal error events that lead to application termination
+    Fatal,
 }
 
 impl std::fmt::Display for LogLevel {
@@ -36,6 +38,7 @@ impl std::fmt::Display for LogLevel {
             LogLevel::Info => write!(f, "INFO"),
             LogLevel::Warn => write!(f, "WARN"),
             LogLevel::Error => write!(f, "ERROR"),
+            LogLevel::Fatal => write!(f, "FATAL"),
         }
     }
 }
@@ -60,6 +63,7 @@ impl LogLevel {
             LogLevel::Info => format!("{}", self).color(Color::Green),
             LogLevel::Warn => format!("{}", self).color(Color::Yellow),
             LogLevel::Error => format!("{}", self).color(Color::Red),
+            LogLevel::Fatal => format!("{}", self).color(Color::BrightRed),
         }
     }
 }
