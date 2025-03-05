@@ -182,11 +182,14 @@ fn set_logger<L: Logger + 'static>(logger: L) -> Result<(), Error> {
     match LOGGER.set(Box::new(logger)) {
         Ok(_) => {
             #[cfg(not(feature = "blocking"))]
-            shutdown::add_hook(|| {
+            extern "C" fn abort() {
                 if let Some(logger) = LOGGER.get() {
                     logger.abort();
                 }
-            });
+            }
+
+            #[cfg(not(feature = "blocking"))]
+            shutdown::add_hook(abort);
 
             Ok(())
         }
