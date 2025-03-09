@@ -31,3 +31,8 @@ All the dates in this changelog are formatted as day/month/year.
 
 - Added the `style` trait, that enables the user for more string customization.
 - Added the `background` function to the `Colorize` trait, so that the user can change the background color of the contents.
+
+# 1.4.2 - 9/3/2025
+
+- Added the `Fatal` LogLevel variant, useful for logging errors that cause the program to stop.
+- Added the possibility to filter logs for specific targets (like only logging fatal errors to files.)

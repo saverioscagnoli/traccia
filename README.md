@@ -42,7 +42,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-traccia = "1.2.2"
+traccia = "1.4.2"
 ```
 
 ## Quick Start
@@ -127,6 +127,7 @@ debug!("Useful for debugging");
 info!("Application progress: step {}", step_number);
 warn!("Something potentially problematic happened");
 error!("Operation failed: {}", error_message);
+fatal!("The program crashed with error: ", error_message);
 ```
 
 ### File Logging
@@ -171,6 +172,7 @@ init_with_config(config);
 This will be the default implementation.
 If you wish to change to a blocking logger,
 enable the `blocking` feature.
+
 ```rust
 use traccia::{init_with_config, Config, LogLevel};
 
