@@ -1,5 +1,5 @@
 /// Target module defining output destinations for log messages.
-use crate::{error::Error, util};
+use crate::{LogLevel, error::Error, util};
 use std::{
     fs::{self, OpenOptions},
     io::Write,
@@ -39,6 +39,10 @@ pub trait Target: Send + Sync + TargetClone {
     ///
     /// `Ok(())` if successful, or an error if the write operation failed
     fn write(&self, formatted: &str) -> Result<(), Error>;
+
+    fn custom_level(&self) -> Option<LogLevel> {
+        None
+    }
 }
 
 impl Clone for Box<dyn Target> {
@@ -52,7 +56,9 @@ impl Clone for Box<dyn Target> {
 /// This target writes log messages to the standard output (stdout)
 /// using the Rust `println!` macro.
 #[derive(Clone)]
-pub struct Console;
+pub struct Console {
+    level: Option<LogLevel>,
+}
 
 impl Target for Console {
     /// Writes the formatted log message to the console.
@@ -67,6 +73,20 @@ impl Target for Console {
     fn write(&self, formatted: &str) -> Result<(), Error> {
         println!("{}", formatted);
         Ok(())
+    }
+
+    fn custom_level(&self) -> Option<LogLevel> {
+        self.level
+    }
+}
+
+impl Console {
+    pub fn new() -> Self {
+        Console { level: None }
+    }
+
+    pub fn new_filtered(level: LogLevel) -> Self {
+        Console { level: Some(level) }
     }
 }
 
@@ -90,13 +110,41 @@ impl Default for FileMode {
 /// This target writes log messages to a file on disk.
 /// ANSI color codes are automatically stripped from messages written to files.
 #[derive(Clone)]
-pub struct File(Arc<Mutex<fs::File>>);
+pub struct File {
+    inner: Arc<Mutex<fs::File>>,
+    level: Option<LogLevel>,
+}
 
 impl Deref for File {
     type Target = Mutex<fs::File>;
 
     fn deref(&self) -> &Self::Target {
-        &self.0
+        &self.inner
+    }
+}
+
+impl Target for File {
+    /// Writes the formatted log message to the file.
+    ///
+    /// ANSI color codes are automatically stripped from the message
+    /// before writing to the file.
+    ///
+    /// # Arguments
+    ///
+    /// * `formatted` - The formatted log message to write
+    ///
+    /// # Returns
+    ///
+    /// `Ok(())` if successful, or an error if the write operation failed
+    fn write(&self, formatted: &str) -> Result<(), Error> {
+        let mut file = self.lock().map_err(|_| Error::Poisoned)?;
+        let stripped = util::strip_ansi_codes(formatted);
+        writeln!(file, "{}", stripped)?;
+        Ok(())
+    }
+
+    fn custom_level(&self) -> Option<LogLevel> {
+        self.level
     }
 }
 
@@ -152,27 +200,40 @@ impl File {
         }
 
         let file = options.open(path)?;
-        Ok(File(Arc::new(Mutex::new(file))))
+        Ok(File {
+            inner: Arc::new(Mutex::new(file)),
+            level: None,
+        })
     }
-}
 
-impl Target for File {
-    /// Writes the formatted log message to the file.
-    ///
-    /// ANSI color codes are automatically stripped from the message
-    /// before writing to the file.
-    ///
-    /// # Arguments
-    ///
-    /// * `formatted` - The formatted log message to write
-    ///
-    /// # Returns
-    ///
-    /// `Ok(())` if successful, or an error if the write operation failed
-    fn write(&self, formatted: &str) -> Result<(), Error> {
-        let mut file = self.lock().map_err(|_| Error::Poisoned)?;
-        let stripped = util::strip_ansi_codes(formatted);
-        writeln!(file, "{}", stripped)?;
-        Ok(())
+    pub fn new_filtered<P>(path: P, mode: FileMode, level: LogLevel) -> Result<Self, Error>
+    where
+        P: AsRef<Path>,
+    {
+        let path = path.as_ref();
+
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent)?;
+        }
+
+        let mut options = OpenOptions::new();
+
+        options.create(true);
+
+        match mode {
+            FileMode::Append => {
+                options.append(true);
+            }
+
+            FileMode::Truncate => {
+                options.write(true).truncate(true);
+            }
+        }
+
+        let file = options.open(path)?;
+        Ok(File {
+            inner: Arc::new(Mutex::new(file)),
+            level: Some(level),
+        })
     }
 }

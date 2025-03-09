@@ -3,10 +3,10 @@ use std::{
     thread,
 };
 
-use crate::{Config, DefaultFormatter, Formatter, Logger, Record, Target};
+use crate::{Config, DefaultFormatter, Formatter, LogLevel, Logger, Record, Target};
 
 enum ChannelMessage {
-    Log(String),
+    Log(String, LogLevel),
     Flush,
 }
 
@@ -35,8 +35,14 @@ impl DefaultLogger {
     fn worker_thread(receiver: mpsc::Receiver<ChannelMessage>, targets: Vec<Box<dyn Target>>) {
         loop {
             match receiver.recv() {
-                Ok(ChannelMessage::Log(formatted)) => {
+                Ok(ChannelMessage::Log(formatted, level)) => {
                     for target in &targets {
+                        if let Some(filter_level) = target.custom_level() {
+                            if level < filter_level {
+                                continue;
+                            }
+                        }
+
                         if let Err(e) = target.write(&formatted) {
                             eprintln!("Failed to write to target: {}", e);
                         }
@@ -52,8 +58,14 @@ impl DefaultLogger {
         // Drain the remaining messages
         while let Ok(message) = receiver.try_recv() {
             match message {
-                ChannelMessage::Log(formatted) => {
+                ChannelMessage::Log(formatted, level) => {
                     for target in &targets {
+                        if let Some(filter_level) = target.custom_level() {
+                            if level < filter_level {
+                                continue;
+                            }
+                        }
+
                         if let Err(e) = target.write(&formatted) {
                             eprintln!("Failed to write to target: {}", e);
                         }
@@ -89,7 +101,9 @@ impl Logger for DefaultLogger {
             None => DefaultFormatter.format(record),
         };
 
-        let _ = self.sender.send(ChannelMessage::Log(formatted));
+        let _ = self
+            .sender
+            .send(ChannelMessage::Log(formatted, record.level));
     }
 }
 
