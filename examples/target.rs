@@ -6,12 +6,9 @@ fn main() {
         targets: vec![
             Box::new(traccia::Console::new()),
             Box::new(
-                traccia::File::new_filtered(
-                    ".logs/latest.log",
-                    FileMode::Truncate,
-                    LogLevel::Fatal,
-                )
-                .unwrap(),
+                traccia::File::new(".logs/latest.log", FileMode::Truncate)
+                    .unwrap()
+                    .filtered(LogLevel::Fatal),
             ),
         ],
         ..Default::default()

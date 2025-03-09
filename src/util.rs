@@ -1,3 +1,4 @@
+/// Removes ANSI escape codes from a string.
 pub(crate) fn strip_ansi_codes(s: &str) -> String {
     if s.is_empty() || !s.contains('\x1b') {
         return s.to_string();

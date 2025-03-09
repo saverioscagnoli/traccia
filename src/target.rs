@@ -40,7 +40,10 @@ pub trait Target: Send + Sync + TargetClone {
     /// `Ok(())` if successful, or an error if the write operation failed
     fn write(&self, formatted: &str) -> Result<(), Error>;
 
-    fn custom_level(&self) -> Option<LogLevel> {
+    /// Returns a custom filter level for the target.
+    /// If the target has a filter level set, log messages with a lower
+    /// level will be ignored.
+    fn filter_level(&self) -> Option<LogLevel> {
         None
     }
 }
@@ -75,7 +78,12 @@ impl Target for Console {
         Ok(())
     }
 
-    fn custom_level(&self) -> Option<LogLevel> {
+    /// Returns the custom filter level for the console target.
+    /// If the filter level is set, log messages with a lower level
+    /// will be ignored.
+    ///
+    /// Useful for filtering log messages written to the console.
+    fn filter_level(&self) -> Option<LogLevel> {
         self.level
     }
 }
@@ -85,8 +93,9 @@ impl Console {
         Console { level: None }
     }
 
-    pub fn new_filtered(level: LogLevel) -> Self {
-        Console { level: Some(level) }
+    pub fn filtered(mut self, level: LogLevel) -> Self {
+        self.level = Some(level);
+        self
     }
 }
 
@@ -143,7 +152,7 @@ impl Target for File {
         Ok(())
     }
 
-    fn custom_level(&self) -> Option<LogLevel> {
+    fn filter_level(&self) -> Option<LogLevel> {
         self.level
     }
 }
@@ -206,34 +215,13 @@ impl File {
         })
     }
 
-    pub fn new_filtered<P>(path: P, mode: FileMode, level: LogLevel) -> Result<Self, Error>
-    where
-        P: AsRef<Path>,
-    {
-        let path = path.as_ref();
-
-        if let Some(parent) = path.parent() {
-            fs::create_dir_all(parent)?;
-        }
-
-        let mut options = OpenOptions::new();
-
-        options.create(true);
-
-        match mode {
-            FileMode::Append => {
-                options.append(true);
-            }
-
-            FileMode::Truncate => {
-                options.write(true).truncate(true);
-            }
-        }
-
-        let file = options.open(path)?;
-        Ok(File {
-            inner: Arc::new(Mutex::new(file)),
-            level: Some(level),
-        })
+    /// Sets a custom filter level for the file target.
+    /// If the filter level is set, log messages with a lower level
+    /// will be ignored.
+    ///
+    /// Useful for filtering log messages written to files.
+    pub fn filtered(mut self, level: LogLevel) -> Self {
+        self.level = Some(level);
+        self
     }
 }

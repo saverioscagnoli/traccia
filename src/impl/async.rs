@@ -32,21 +32,26 @@ impl DefaultLogger {
         }
     }
 
+    fn process_message(formatted: &str, level: LogLevel, targets: &[Box<dyn Target>]) {
+        for target in targets {
+            // Check if the target has a custom filter level
+            if let Some(filter_level) = target.filter_level() {
+                if level < filter_level {
+                    continue;
+                }
+            }
+
+            if let Err(e) = target.write(&formatted) {
+                eprintln!("Failed to write to target: {}", e);
+            }
+        }
+    }
+
     fn worker_thread(receiver: mpsc::Receiver<ChannelMessage>, targets: Vec<Box<dyn Target>>) {
         loop {
             match receiver.recv() {
                 Ok(ChannelMessage::Log(formatted, level)) => {
-                    for target in &targets {
-                        if let Some(filter_level) = target.custom_level() {
-                            if level < filter_level {
-                                continue;
-                            }
-                        }
-
-                        if let Err(e) = target.write(&formatted) {
-                            eprintln!("Failed to write to target: {}", e);
-                        }
-                    }
+                    Self::process_message(&formatted, level, &targets)
                 }
 
                 Ok(ChannelMessage::Flush) => break,
@@ -59,18 +64,9 @@ impl DefaultLogger {
         while let Ok(message) = receiver.try_recv() {
             match message {
                 ChannelMessage::Log(formatted, level) => {
-                    for target in &targets {
-                        if let Some(filter_level) = target.custom_level() {
-                            if level < filter_level {
-                                continue;
-                            }
-                        }
-
-                        if let Err(e) = target.write(&formatted) {
-                            eprintln!("Failed to write to target: {}", e);
-                        }
-                    }
+                    Self::process_message(&formatted, level, &targets)
                 }
+
                 _ => {}
             }
         }
