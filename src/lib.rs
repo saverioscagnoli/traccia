@@ -139,7 +139,7 @@ impl Config {
     pub fn default_with_level(level: LogLevel) -> Self {
         Config {
             level,
-            targets: vec![Box::new(target::Console)],
+            targets: vec![Box::new(target::Console::new())],
             format: Some(Box::new(format::DefaultFormatter)),
         }
     }
@@ -156,7 +156,7 @@ impl Default for Config {
     fn default() -> Self {
         Config {
             level: LogLevel::Info,
-            targets: vec![Box::new(target::Console)],
+            targets: vec![Box::new(target::Console::new())],
             format: Some(Box::new(format::DefaultFormatter)),
         }
     }

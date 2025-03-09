@@ -4,8 +4,12 @@ fn main() {
     traccia::init_with_config(traccia::Config {
         level: LogLevel::Trace,
         targets: vec![
-            Box::new(traccia::Console),
-            Box::new(traccia::File::new(".logs/latest.log", FileMode::Truncate).unwrap()),
+            Box::new(traccia::Console::new()),
+            Box::new(
+                traccia::File::new(".logs/latest.log", FileMode::Truncate)
+                    .unwrap()
+                    .filtered(LogLevel::Fatal),
+            ),
         ],
         ..Default::default()
     });

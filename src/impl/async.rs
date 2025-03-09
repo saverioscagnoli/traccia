@@ -3,10 +3,10 @@ use std::{
     thread,
 };
 
-use crate::{Config, DefaultFormatter, Formatter, Logger, Record, Target};
+use crate::{Config, DefaultFormatter, Formatter, LogLevel, Logger, Record, Target};
 
 enum ChannelMessage {
-    Log(String),
+    Log(String, LogLevel),
     Flush,
 }
 
@@ -32,15 +32,26 @@ impl DefaultLogger {
         }
     }
 
+    fn process_message(formatted: &str, level: LogLevel, targets: &[Box<dyn Target>]) {
+        for target in targets {
+            // Check if the target has a custom filter level
+            if let Some(filter_level) = target.filter_level() {
+                if level < filter_level {
+                    continue;
+                }
+            }
+
+            if let Err(e) = target.write(&formatted) {
+                eprintln!("Failed to write to target: {}", e);
+            }
+        }
+    }
+
     fn worker_thread(receiver: mpsc::Receiver<ChannelMessage>, targets: Vec<Box<dyn Target>>) {
         loop {
             match receiver.recv() {
-                Ok(ChannelMessage::Log(formatted)) => {
-                    for target in &targets {
-                        if let Err(e) = target.write(&formatted) {
-                            eprintln!("Failed to write to target: {}", e);
-                        }
-                    }
+                Ok(ChannelMessage::Log(formatted, level)) => {
+                    Self::process_message(&formatted, level, &targets)
                 }
 
                 Ok(ChannelMessage::Flush) => break,
@@ -52,13 +63,10 @@ impl DefaultLogger {
         // Drain the remaining messages
         while let Ok(message) = receiver.try_recv() {
             match message {
-                ChannelMessage::Log(formatted) => {
-                    for target in &targets {
-                        if let Err(e) = target.write(&formatted) {
-                            eprintln!("Failed to write to target: {}", e);
-                        }
-                    }
+                ChannelMessage::Log(formatted, level) => {
+                    Self::process_message(&formatted, level, &targets)
                 }
+
                 _ => {}
             }
         }
@@ -89,7 +97,9 @@ impl Logger for DefaultLogger {
             None => DefaultFormatter.format(record),
         };
 
-        let _ = self.sender.send(ChannelMessage::Log(formatted));
+        let _ = self
+            .sender
+            .send(ChannelMessage::Log(formatted, record.level));
     }
 }
 
