@@ -84,6 +84,8 @@ impl Logger for DefaultLogger {
             if let Some(handle) = handle.take() {
                 handle.join().unwrap();
             }
+
+            eprintln!("Cleanup process failed. Some final logs may not be written.");
         }
     }
 

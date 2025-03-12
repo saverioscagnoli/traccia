@@ -5,10 +5,8 @@ struct CustomFormatter;
 impl traccia::Formatter for CustomFormatter {
     fn format(&self, record: &traccia::Record) -> String {
         format!(
-            ":D [{}] [{}:{}] {}",
-            record.level.default_coloring(),
-            record.file.as_ref().unwrap(),
-            record.line.unwrap(),
+            "{}: {}",
+            record.level.default_coloring().to_lowercase(),
             record.message
         )
     }
@@ -26,5 +24,5 @@ fn main() {
     info!("This is an info message");
     warn!("This is a warn message");
     error!("This is an error message");
-    fatal!("This is a fatal message");	
+    fatal!("This is a fatal message");
 }
