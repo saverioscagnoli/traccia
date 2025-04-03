@@ -9,7 +9,7 @@ use crate::{Color, Colorize};
 /// - `Info`: General information about application progress
 /// - `Warn`: Potentially harmful situations that might need attention
 /// - `Error`: Error events that might still allow the application to continue running
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum LogLevel {
     /// Very detailed information for debugging specific issues
     Trace,

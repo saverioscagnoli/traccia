@@ -1,6 +1,7 @@
 /// Target module defining output destinations for log messages.
-use crate::{LogLevel, error::Error, util};
+use crate::{error::Error, util, LogLevel};
 use std::{
+    collections::HashMap,
     fs::{self, OpenOptions},
     io::Write,
     ops::Deref,
@@ -33,12 +34,13 @@ pub trait Target: Send + Sync + TargetClone {
     ///
     /// # Arguments
     ///
+    /// * `level` - The log level of the message
     /// * `formatted` - The formatted log message to write
     ///
     /// # Returns
     ///
     /// `Ok(())` if successful, or an error if the write operation failed
-    fn write(&self, formatted: &str) -> Result<(), Error>;
+    fn write(&self, level: LogLevel, formatted: &str) -> Result<(), Error>;
 
     /// Returns a custom filter level for the target.
     /// If the target has a filter level set, log messages with a lower
@@ -54,13 +56,80 @@ impl Clone for Box<dyn Target> {
     }
 }
 
+/// Output destination for console log messages.
+///
+/// The default output is stdout.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Output {
+    Stdout,
+    Stderr,
+}
+
+impl Default for Output {
+    fn default() -> Self {
+        Output::Stdout
+    }
+}
+
+impl Default for &Output {
+    fn default() -> Self {
+        &Output::Stdout
+    }
+}
+
 /// Standard console output target.
 ///
-/// This target writes log messages to the standard output (stdout)
-/// using the Rust `println!` macro.
+/// This target writes log messages to the standard output (stdout) or standard error (stderr)
+/// using the Rust `println!` | `eprintln!` macro.
 #[derive(Clone)]
 pub struct Console {
     level: Option<LogLevel>,
+    output: Option<Output>,
+    filtered_outputs: Option<HashMap<LogLevel, Output>>,
+}
+
+impl Console {
+    /// Creates a new console target
+    pub fn new() -> Self {
+        Console {
+            level: None,
+            output: None,
+            filtered_outputs: None,
+        }
+    }
+
+    /// Builder method to set the custom filter level for this target.
+    pub fn filtered(mut self, level: LogLevel) -> Self {
+        self.level = Some(level);
+        self
+    }
+
+    /// Builder method to set the custom output for the console.
+    /// This will write to the output for all the logs that target this console.
+    ///
+    /// If you want to set the output for a specific log level, use `filtered_outputs`.
+    ///
+    /// (e.g. You want to write all `LogLevel::Error` logs to stderr and all other logs to stdout)
+    pub fn output(mut self, output: Output) -> Self {
+        self.output = Some(output);
+        self
+    }
+
+    /// Builder method to set the custom output for a specific log level.
+    /// This behaves like the `output` method, but only applies to the specified log level.
+    ///
+    /// If you want to set the output for all logs, use `output`.
+    /// Note: This will override the output set by `output`.
+    ///
+    /// (e.g. If you set `output` to `Stderr`, calling `filtered_outputs(LogLevel::Info, Output::Stdout)` will
+    /// log all `LogLevel::Info` logs to stdout and all other logs to stderr)
+    pub fn filtered_output(mut self, level: LogLevel, output: Output) -> Self {
+        self.filtered_outputs
+            .get_or_insert_with(HashMap::new)
+            .insert(level, output);
+
+        self
+    }
 }
 
 impl Target for Console {
@@ -73,8 +142,18 @@ impl Target for Console {
     /// # Returns
     ///
     /// Always returns `Ok(())`
-    fn write(&self, formatted: &str) -> Result<(), Error> {
-        println!("{}", formatted);
+    fn write(&self, level: LogLevel, formatted: &str) -> Result<(), Error> {
+        let output = self
+            .filtered_outputs
+            .as_ref()
+            .and_then(|map| map.get(&level))
+            .unwrap_or_else(|| self.output.as_ref().unwrap_or_default());
+
+        match output {
+            Output::Stdout => println!("{}", formatted),
+            Output::Stderr => eprintln!("{}", formatted),
+        }
+
         Ok(())
     }
 
@@ -85,17 +164,6 @@ impl Target for Console {
     /// Useful for filtering log messages written to the console.
     fn filter_level(&self) -> Option<LogLevel> {
         self.level
-    }
-}
-
-impl Console {
-    pub fn new() -> Self {
-        Console { level: None }
-    }
-
-    pub fn filtered(mut self, level: LogLevel) -> Self {
-        self.level = Some(level);
-        self
     }
 }
 
@@ -129,31 +197,6 @@ impl Deref for File {
 
     fn deref(&self) -> &Self::Target {
         &self.inner
-    }
-}
-
-impl Target for File {
-    /// Writes the formatted log message to the file.
-    ///
-    /// ANSI color codes are automatically stripped from the message
-    /// before writing to the file.
-    ///
-    /// # Arguments
-    ///
-    /// * `formatted` - The formatted log message to write
-    ///
-    /// # Returns
-    ///
-    /// `Ok(())` if successful, or an error if the write operation failed
-    fn write(&self, formatted: &str) -> Result<(), Error> {
-        let mut file = self.lock().map_err(|_| Error::Poisoned)?;
-        let stripped = util::strip_ansi_codes(formatted);
-        writeln!(file, "{}", stripped)?;
-        Ok(())
-    }
-
-    fn filter_level(&self) -> Option<LogLevel> {
-        self.level
     }
 }
 
@@ -223,5 +266,30 @@ impl File {
     pub fn filtered(mut self, level: LogLevel) -> Self {
         self.level = Some(level);
         self
+    }
+}
+
+impl Target for File {
+    /// Writes the formatted log message to the file.
+    ///
+    /// ANSI color codes are automatically stripped from the message
+    /// before writing to the file.
+    ///
+    /// # Arguments
+    ///
+    /// * `formatted` - The formatted log message to write
+    ///
+    /// # Returns
+    ///
+    /// `Ok(())` if successful, or an error if the write operation failed
+    fn write(&self, _: LogLevel, formatted: &str) -> Result<(), Error> {
+        let mut file = self.lock().map_err(|_| Error::Poisoned)?;
+        let stripped = util::strip_ansi_codes(formatted);
+        writeln!(file, "{}", stripped)?;
+        Ok(())
+    }
+
+    fn filter_level(&self) -> Option<LogLevel> {
+        self.level
     }
 }

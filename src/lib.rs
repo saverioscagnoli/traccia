@@ -43,7 +43,7 @@ pub use error::Error;
 pub use format::{DefaultFormatter, Formatter};
 pub use level::LogLevel;
 pub use strings::{Color, Colorize, Style};
-pub use target::{Console, File, FileMode, Target};
+pub use target::{Console, File, FileMode, Output, Target};
 
 #[cfg(feature = "blocking")]
 pub use r#impl::blocking::DefaultLogger;
