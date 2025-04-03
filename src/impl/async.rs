@@ -1,5 +1,5 @@
 use std::{
-    sync::{Mutex, mpsc},
+    sync::{mpsc, Mutex},
     thread,
 };
 
@@ -41,7 +41,7 @@ impl DefaultLogger {
                 }
             }
 
-            if let Err(e) = target.write(&formatted) {
+            if let Err(e) = target.write(level, &formatted) {
                 eprintln!("Failed to write to target: {}", e);
             }
         }

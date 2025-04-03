@@ -27,12 +27,12 @@ impl Logger for DefaultLogger {
 
         for target in &self.config.targets {
             if let Some(filter_level) = target.filter_level() {
-                if level < filter_level {
+                if record.level < filter_level {
                     continue;
                 }
             }
 
-            if let Err(e) = target.write(&formatted) {
+            if let Err(e) = target.write(record.level, &formatted) {
                 eprintln!("Failed to write to target: {}", e);
             }
         }

@@ -1,7 +1,7 @@
 [package]
 name = "traccia"
-version = "1.4.2"
-edition = "2021"
+version = "2.0.0"
+edition = "2024"
 authors = ["Saverio Scagnoli <svscagn@gmail.com>"]
 description = "A zero-dependency, flexible logging framework for Rust applications"
 documentation = "https://docs.rs/traccia"
