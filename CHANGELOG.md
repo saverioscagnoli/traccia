@@ -36,3 +36,9 @@ All the dates in this changelog are formatted as day/month/year.
 
 - Added the `Fatal` LogLevel variant, useful for logging errors that cause the program to stop.
 - Added the possibility to filter logs for specific targets (like only logging fatal errors to files.)
+
+# 2.0.0 - 4/4/2025
+
+- Added the `level` parameter to the `write` trait function for `Target`, which breaks current custom implementations.
+
+- Added the possibility to make console write to a custom output `stdout` or `stderr`, both globally and per-level.
