@@ -1,6 +1,6 @@
 [package]
 name = "traccia"
-version = "2.0.1"
+version = "2.1.1"
 edition = "2024"
 authors = ["Saverio Scagnoli <svscagn@gmail.com>"]
 description = "A zero-dependency, flexible logging framework for Rust applications"
@@ -22,16 +22,44 @@ exclude = [
 [features]
 default = []
 blocking = []
+clap = ["dep:clap"]
+
+[dependencies]
+clap = { version = "4.x", features = ["derive"], optional = true }
 
 [package.metadata.docs.rs]
 all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
 [package.metadata.playground]
-features = ["blocking"]
+features = ["blocking", "clap"]
 
 [[example]]
 name = "basic"
+required-features = []
+
+[[example]]
+name = "clap"
+required-features = ["clap"]
+
+[[example]]
+name = "custom-format"
+required-features = []
+
+[[example]]
+name = "filtered-output"
+required-features = []
+
+[[example]]
+name = "level-filtering"
+required-features = []
+
+[[example]]
+name = "output"
+requred-features = []
+
+[[example]]
+name = "strings"
 required-features = []
 
 [[example]]
@@ -40,10 +68,6 @@ required-features = []
 
 [[example]]
 name = "threads"
-required-features = []
-
-[[example]]
-name = "custom-format"
 required-features = []
 
 [profile.release]

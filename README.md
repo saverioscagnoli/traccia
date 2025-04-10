@@ -42,7 +42,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-traccia = "2.0.1"
+traccia = "2.1.1"
 ```
 
 ## Quick Start
