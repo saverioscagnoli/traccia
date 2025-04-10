@@ -42,3 +42,10 @@ All the dates in this changelog are formatted as day/month/year.
 - Added the `level` parameter to the `write` trait function for `Target`, which breaks current custom implementations.
 
 - Added the possibility to make console write to a custom output `stdout` or `stderr`, both globally and per-level.
+
+# 2.0.1 - 10/4/2025
+
+- Added `FromStr` implementation for `LogLevel`.
+- Added `TryFrom` implementation from `LogLevel` to `u8`.
+- Added `TryFrom` implementation from `u8` to `LogLevel`.
+- Added `Error::ParseLogLevel` to indicate whether these parsing methods fail.

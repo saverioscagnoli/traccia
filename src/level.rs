@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 /// Log level definitions and utilities.
 use crate::{Color, Colorize};
 
@@ -64,6 +66,66 @@ impl LogLevel {
             LogLevel::Warn => format!("{}", self).color(Color::Yellow),
             LogLevel::Error => format!("{}", self).color(Color::Red),
             LogLevel::Fatal => format!("{}", self).color(Color::BrightRed),
+        }
+    }
+}
+
+/// The default log level is info
+impl Default for LogLevel {
+    fn default() -> Self {
+        LogLevel::Info
+    }
+}
+
+/// Parse the log level from &str.
+///
+/// Useful for things like clap to parse the log level via
+/// command-line arguments.
+impl FromStr for LogLevel {
+    type Err = crate::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "trace" => Ok(LogLevel::Trace),
+            "debug" => Ok(LogLevel::Debug),
+            "info" => Ok(LogLevel::Info),
+            "warn" => Ok(LogLevel::Warn),
+            "error" => Ok(LogLevel::Error),
+            "fatal" => Ok(LogLevel::Fatal),
+            _ => Err(crate::Error::ParseLogLevel),
+        }
+    }
+}
+
+/// Tryfrom u8 parsing implementation
+impl TryFrom<u8> for LogLevel {
+    type Error = crate::Error;
+
+    fn try_from(value: u8) -> Result<Self, crate::Error> {
+        match value {
+            0 => Ok(LogLevel::Trace),
+            1 => Ok(LogLevel::Debug),
+            2 => Ok(LogLevel::Info),
+            3 => Ok(LogLevel::Warn),
+            4 => Ok(LogLevel::Error),
+            5 => Ok(LogLevel::Fatal),
+            _ => Err(crate::Error::ParseLogLevel),
+        }
+    }
+}
+
+/// TryFrom log level implementation for u8
+impl TryFrom<LogLevel> for u8 {
+    type Error = crate::Error;
+
+    fn try_from(value: LogLevel) -> Result<Self, Self::Error> {
+        match value {
+            LogLevel::Trace => Ok(0),
+            LogLevel::Debug => Ok(1),
+            LogLevel::Info => Ok(2),
+            LogLevel::Warn => Ok(3),
+            LogLevel::Error => Ok(4),
+            LogLevel::Fatal => Ok(5),
         }
     }
 }
