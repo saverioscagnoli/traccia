@@ -1,6 +1,6 @@
 [package]
 name = "traccia"
-version = "2.0.1"
+version = "2.1.1"
 edition = "2024"
 authors = ["Saverio Scagnoli <svscagn@gmail.com>"]
 description = "A zero-dependency, flexible logging framework for Rust applications"
@@ -25,7 +25,7 @@ blocking = []
 clap = ["dep:clap"]
 
 [dependencies]
-clap = { version = "4", features = ["derive"], optional = true }
+clap = { version = "4.x", features = ["derive"], optional = true }
 
 [package.metadata.docs.rs]
 all-features = true
