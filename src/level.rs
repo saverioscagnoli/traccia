@@ -129,3 +129,70 @@ impl TryFrom<LogLevel> for u8 {
         }
     }
 }
+
+/// Implementation of the clap's ValueEnum trait for LogLevel when the "clap" feature is enabled.
+///
+/// This allows using LogLevel directly with clap's derive API and provides several ways to
+/// specify log levels on the command line:
+///
+/// # Command-line examples:
+/// ```
+/// # Using lowercase (default format)
+/// myapp --log-level debug
+///
+/// # Using uppercase
+/// myapp --log-level DEBUG
+///
+/// # Using title case
+/// myapp --log-level Debug
+/// ```
+///
+/// This implementation provides the list of all possible log level variants and defines
+/// how they can be specified from command-line arguments, supporting case-insensitive matching.
+#[cfg(feature = "clap")]
+impl clap::ValueEnum for LogLevel {
+    /// Returns an array slice containing all variants of LogLevel.
+    ///
+    /// This is used by clap to validate and parse command-line arguments.
+    fn value_variants<'a>() -> &'a [Self] {
+        &[
+            LogLevel::Trace,
+            LogLevel::Debug,
+            LogLevel::Info,
+            LogLevel::Warn,
+            LogLevel::Error,
+            LogLevel::Fatal,
+        ]
+    }
+
+    /// Converts a LogLevel variant to its string representation with aliases.
+    ///
+    /// For each log level, this provides:
+    /// - A lowercase default (e.g., "debug")
+    /// - An uppercase alias (e.g., "DEBUG")
+    /// - A title case alias (e.g., "Debug")
+    ///
+    /// This allows users to specify the log level in any case they prefer.
+    fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
+        Some(match self {
+            LogLevel::Trace => clap::builder::PossibleValue::new("trace")
+                .alias("TRACE")
+                .alias("Trace"),
+            LogLevel::Debug => clap::builder::PossibleValue::new("debug")
+                .alias("DEBUG")
+                .alias("Debug"),
+            LogLevel::Info => clap::builder::PossibleValue::new("info")
+                .alias("INFO")
+                .alias("Info"),
+            LogLevel::Warn => clap::builder::PossibleValue::new("warn")
+                .alias("WARN")
+                .alias("Warn"),
+            LogLevel::Error => clap::builder::PossibleValue::new("error")
+                .alias("ERROR")
+                .alias("Error"),
+            LogLevel::Fatal => clap::builder::PossibleValue::new("fatal")
+                .alias("FATAL")
+                .alias("Fatal"),
+        })
+    }
+}
