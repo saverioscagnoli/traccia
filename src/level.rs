@@ -92,7 +92,6 @@ impl FromStr for LogLevel {
             "warn" => Ok(LogLevel::Warn),
             "error" => Ok(LogLevel::Error),
             "fatal" => Ok(LogLevel::Fatal),
-
             _ => Err(crate::Error::ParseLogLevel),
         }
     }
