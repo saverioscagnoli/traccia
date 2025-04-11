@@ -1,9 +1,9 @@
 use std::{
-    sync::{mpsc, Mutex},
+    sync::{Mutex, mpsc},
     thread,
 };
 
-use crate::{Config, DefaultFormatter, Formatter, LogLevel, Logger, Record, Target};
+use crate::{Config, DefaultFormatter, Formatter, LogLevel, Logger, Record, Target, hooks};
 
 enum ChannelMessage {
     Log(String, LogLevel),
@@ -33,6 +33,8 @@ impl DefaultLogger {
     }
 
     fn process_message(formatted: &str, level: LogLevel, targets: &[Box<dyn Target>]) {
+        let hook_system = hooks::hook_system().read().unwrap();
+
         for target in targets {
             // Check if the target has a custom filter level
             if let Some(filter_level) = target.filter_level() {
@@ -41,9 +43,13 @@ impl DefaultLogger {
                 }
             }
 
+            hook_system.trigger_before_log();
+
             if let Err(e) = target.write(level, &formatted) {
                 eprintln!("Failed to write to target: {}", e);
             }
+
+            hook_system.trigger_after_log();
         }
     }
 
