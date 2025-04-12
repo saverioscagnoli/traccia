@@ -51,6 +51,10 @@ name = "filtered-output"
 required-features = []
 
 [[example]]
+name = "hooks"
+required-features = []
+
+[[example]]
 name = "level-filtering"
 required-features = []
 

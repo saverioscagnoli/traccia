@@ -1,11 +1,11 @@
 /// Target module defining output destinations for log messages.
-use crate::{error::Error, util, LogLevel};
+use crate::{LogLevel, error::Error, util};
 use std::{
     collections::HashMap,
     fs::{self, OpenOptions},
     io::Write,
     ops::Deref,
-    path::Path,
+    path::{Path, PathBuf},
     sync::{Arc, Mutex},
 };
 
@@ -21,6 +21,13 @@ where
     fn clone_box(&self) -> Box<dyn Target> {
         Box::new(self.clone())
     }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum TargetId {
+    Console(Output),
+    File(PathBuf),
+    Custom(String),
 }
 
 /// Defines an output destination for log messages.
@@ -48,6 +55,12 @@ pub trait Target: Send + Sync + TargetClone {
     fn filter_level(&self) -> Option<LogLevel> {
         None
     }
+
+    /// Returns the target ID for the target.
+    /// This is used to identify the target in the logger.
+    fn id(&self) -> TargetId {
+        TargetId::Custom(format!("{:p}", self))
+    }
 }
 
 impl Clone for Box<dyn Target> {
@@ -59,7 +72,7 @@ impl Clone for Box<dyn Target> {
 /// Output destination for console log messages.
 ///
 /// The default output is stdout.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Output {
     Stdout,
     Stderr,
@@ -165,6 +178,12 @@ impl Target for Console {
     fn filter_level(&self) -> Option<LogLevel> {
         self.level
     }
+
+    /// Returns the target ID for the console target.
+    /// This is used to identify the target in the logger.
+    fn id(&self) -> TargetId {
+        TargetId::Console(self.output.unwrap_or_default())
+    }
 }
 
 /// File open mode for writing log messages.
@@ -188,6 +207,7 @@ impl Default for FileMode {
 /// ANSI color codes are automatically stripped from messages written to files.
 #[derive(Clone)]
 pub struct File {
+    path: PathBuf,
     inner: Arc<Mutex<fs::File>>,
     level: Option<LogLevel>,
 }
@@ -253,6 +273,7 @@ impl File {
 
         let file = options.open(path)?;
         Ok(File {
+            path: path.to_path_buf(),
             inner: Arc::new(Mutex::new(file)),
             level: None,
         })
@@ -289,7 +310,16 @@ impl Target for File {
         Ok(())
     }
 
+    /// Returns the custom filter level for the file target.
+    /// If the filter level is set, log messages with a lower level
+    /// will be ignored.
     fn filter_level(&self) -> Option<LogLevel> {
         self.level
+    }
+
+    /// Returns the target ID for the file target.
+    /// This is used to identify the target in the logger.
+    fn id(&self) -> TargetId {
+        TargetId::File(self.path.clone())
     }
 }

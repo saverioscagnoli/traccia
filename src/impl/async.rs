@@ -1,9 +1,8 @@
+use crate::{Config, DefaultFormatter, Formatter, LogLevel, Logger, Record, Target, hooks};
 use std::{
     sync::{Mutex, mpsc},
     thread,
 };
-
-use crate::{Config, DefaultFormatter, Formatter, LogLevel, Logger, Record, Target, hooks};
 
 enum ChannelMessage {
     Log(String, LogLevel),
@@ -33,7 +32,14 @@ impl DefaultLogger {
     }
 
     fn process_message(formatted: &str, level: LogLevel, targets: &[Box<dyn Target>]) {
-        let hook_system = hooks::hook_system().read().unwrap();
+        // Acquire the hook system lock
+        // This is a read lock, so it won't block other threads from reading
+        // but will block if another thread is writing
+        // So, it fails only if the user tries to set a hook while the logger is running,
+        // which is not encouraged.
+        let hook_system = hooks::hook_system().read().expect(
+            "Failed to acquire the hook system lock. You should use `set_hook` before initializing the logger.",
+        );
 
         for target in targets {
             // Check if the target has a custom filter level
@@ -43,13 +49,15 @@ impl DefaultLogger {
                 }
             }
 
-            hook_system.trigger_before_log();
+            let target_id = target.id();
+
+            hook_system.trigger_before_log(level, &target_id);
 
             if let Err(e) = target.write(level, &formatted) {
                 eprintln!("Failed to write to target: {}", e);
             }
 
-            hook_system.trigger_after_log();
+            hook_system.trigger_after_log(level, &target_id);
         }
     }
 
