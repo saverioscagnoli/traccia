@@ -55,3 +55,9 @@ All the dates in this changelog are formatted as day/month/year.
 - Added a `clap` feature to interface with the clap api
 - Now `LogLevel` can be directly used as a field in a struct with a `Parser` implementation
 - Added `clap` example
+
+# 2.2.1 - 12/4/2025
+- Added an hook system that allows the user to perform actions at certains event in the logging process
+- Added the `Hook` enum
+- Added an optional function `id` to the `Target` struct that is used to identify the target in hooks,
+  (i.e.) execute only if target is console

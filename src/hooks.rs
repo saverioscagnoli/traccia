@@ -69,7 +69,9 @@ pub fn hook_system() -> &'static RwLock<HookSystem> {
 
 /// Sets a hook to be called at the specified point in the logging process.
 ///
-/// IMPORTANT: DO NOT USE A LOGGING MACRO INSIDE THE `BeforeLog` or `AfterLog` HOOKS.
+/// Multiple hooks can be set.
+///
+/// IMPORTANT: do not use the macros defined in this crate in `BeforeLog` or `AfterLog` hooks.
 /// This will lead to an infinite loop, as the logging macros trigger the hooks
 /// themselves.
 pub fn set_hook(hook: Hook) {
