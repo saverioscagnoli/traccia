@@ -23,10 +23,18 @@ where
     }
 }
 
+/// Represents the id of the target where the log message is written.
+/// This can be a console output, file path, or a custom string identifier.
+/// Useful for identifying the target in hooks / filters.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum TargetId {
+    /// Console output target
     Console(Output),
+    /// File output target
     File(PathBuf),
+    /// Custom target identifier
+    /// This can be used for custom targets that don't fit into the
+    /// predefined categories.
     Custom(String),
 }
 
@@ -74,7 +82,9 @@ impl Clone for Box<dyn Target> {
 /// The default output is stdout.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Output {
+    /// Standard output (stdout)
     Stdout,
+    /// Standard error (stderr)
     Stderr,
 }
 
