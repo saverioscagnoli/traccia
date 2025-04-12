@@ -26,6 +26,7 @@
 //! ```
 mod error;
 mod format;
+mod hooks;
 mod r#impl;
 mod level;
 mod macros;
@@ -41,9 +42,10 @@ use std::{sync::OnceLock, thread::ThreadId};
 // Exports
 pub use error::Error;
 pub use format::{DefaultFormatter, Formatter};
+pub use hooks::{Hook, set_hook};
 pub use level::LogLevel;
 pub use strings::{Color, Colorize, Style};
-pub use target::{Console, File, FileMode, Output, Target};
+pub use target::{Console, File, FileMode, Output, Target, TargetId};
 
 #[cfg(feature = "blocking")]
 pub use r#impl::blocking::DefaultLogger;

@@ -1,4 +1,4 @@
-use std::{fmt::Display, io};
+use std::{fmt::Display, io, sync::PoisonError};
 
 #[derive(Debug)]
 pub enum Error {
@@ -9,6 +9,7 @@ pub enum Error {
     /// The logger has been initialized more than once.
     AlreadyInitialized,
     /// The mutex is poisoned (i.e. `File` targets)
+    /// Or the `HOOKS` RwLock is poisoned
     Poisoned,
     /// Failed to convert `LogLevel` to something else or vice-versa
     ParseLogLevel,
@@ -17,6 +18,12 @@ pub enum Error {
 impl From<io::Error> for Error {
     fn from(err: io::Error) -> Self {
         Error::Io(err)
+    }
+}
+
+impl<T> From<PoisonError<T>> for Error {
+    fn from(_: PoisonError<T>) -> Self {
+        Error::Poisoned
     }
 }
 

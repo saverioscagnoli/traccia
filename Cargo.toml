@@ -1,6 +1,6 @@
 [package]
 name = "traccia"
-version = "2.1.1"
+version = "2.2.1"
 edition = "2024"
 authors = ["Saverio Scagnoli <svscagn@gmail.com>"]
 description = "A zero-dependency, flexible logging framework for Rust applications"
@@ -48,6 +48,10 @@ required-features = []
 
 [[example]]
 name = "filtered-output"
+required-features = []
+
+[[example]]
+name = "hooks"
 required-features = []
 
 [[example]]
