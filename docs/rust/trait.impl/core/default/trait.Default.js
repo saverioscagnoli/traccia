@@ -1,0 +1,9 @@
+(function() {
+    var implementors = Object.fromEntries([["traccia",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.88.0/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for &amp;<a class=\"enum\" href=\"traccia/enum.Output.html\" title=\"enum traccia::Output\">Output</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.88.0/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"enum\" href=\"traccia/enum.FileMode.html\" title=\"enum traccia::FileMode\">FileMode</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.88.0/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"enum\" href=\"traccia/enum.LogLevel.html\" title=\"enum traccia::LogLevel\">LogLevel</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.88.0/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"enum\" href=\"traccia/enum.Output.html\" title=\"enum traccia::Output\">Output</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.88.0/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"struct\" href=\"traccia/struct.Config.html\" title=\"struct traccia::Config\">Config</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.88.0/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"struct\" href=\"traccia/struct.DefaultLogger.html\" title=\"struct traccia::DefaultLogger\">DefaultLogger</a>"]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[1569]}

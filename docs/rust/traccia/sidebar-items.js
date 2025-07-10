@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Color","Error","FileMode","Hook","LogLevel","Output","TargetId"],"fn":["init","init_default","init_with_config","logger","set_hook"],"macro":["debug","error","fatal","info","log","trace","warn"],"struct":["Config","Console","DefaultFormatter","DefaultLogger","File","Record"],"trait":["Colorize","Formatter","Logger","Style","Target"]};

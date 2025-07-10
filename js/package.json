@@ -1,0 +1,21 @@
+{
+  "name": "traccia",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsup",
+    "start": "node examples/demo.js"
+  },
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "resultr": "^1.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.12",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.3"
+  }
+}
