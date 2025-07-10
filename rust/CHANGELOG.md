@@ -75,3 +75,7 @@ All the dates in this changelog are formatted as day/month/year.
 # 2.2.4 - 10/7/2025
 
 - Fixed README
+
+# 2.2.5 - 10/7/2025
+
+- I can't fix these damn screenshots
