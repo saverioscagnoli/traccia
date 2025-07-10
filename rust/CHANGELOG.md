@@ -67,3 +67,7 @@ All the dates in this changelog are formatted as day/month/year.
 
 - Moved project into a monorepo
 - Changed link metadata
+
+# 2.2.3 - 10/7/2025
+
+- Changed readme screenshot links
