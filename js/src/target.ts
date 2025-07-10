@@ -1,6 +1,7 @@
 import { LogLevel } from ".";
 import fs from "fs";
-import { stripAnsi } from "./format";
+import path from "path";
+import { stripAnsi } from "./utils";
 
 /**
  * Interface for log output targets.
@@ -39,7 +40,14 @@ class File implements Target {
     if (fileMode !== "append" && fileMode !== "overwrite") {
       throw new Error("Invalid file mode. Use 'append' or 'overwrite'.");
     }
+
     this.#filePath = filePath;
+
+    // Create all directories in the path if they don't exist
+    const dirPath = path.dirname(this.#filePath);
+
+    fs.mkdirSync(dirPath, { recursive: true });
+
     if (fileMode === "overwrite") {
       // Clear the file if it exists
       fs.writeFileSync(this.#filePath, "", "utf8");
