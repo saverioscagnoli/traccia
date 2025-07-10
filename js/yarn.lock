@@ -712,11 +712,6 @@ resolve-from@^5.0.0:
   resolved "https://registry.yarnpkg.com/resolve-from/-/resolve-from-5.0.0.tgz#c35225843df8f776df21c57557bc087e9dfdfc69"
   integrity sha512-qYg9KP24dD5qka9J47d0aVky0N+b4fTU89LN9iDnjB5waksiC49rvMB0PrUJQGoTmH50XPiqOvAjDfaijGxYZw==
 
-resultr@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/resultr/-/resultr-1.0.2.tgz#c5cbfe06f53d2390eefe67d6d41eff9023d5652d"
-  integrity sha512-ueYdmuyF/XjYchDcomHP1QU0fpsrNJ4JE1kn+xnnoyTDdgY5EuICXtGRwg5cdJG5rZPVYjW/1C6Xc3mevJs9eQ==
-
 rollup@^4.34.8:
   version "4.44.2"
   resolved "https://registry.yarnpkg.com/rollup/-/rollup-4.44.2.tgz#faedb27cb2aa6742530c39668092eecbaf78c488"

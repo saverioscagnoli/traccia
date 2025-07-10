@@ -1,6 +1,7 @@
 import { Config } from "./config";
 import { DefaultFormatter } from "./format";
 import { Console } from "./target";
+import { CallSite, callsite } from "./utils";
 
 /**
  * Represents a single log record with all its associated metadata.
@@ -9,8 +10,8 @@ type LogRecord = {
   level: LogLevel;
   threadID: number;
   timestamp: Date;
-  message: string;
-  metadata?: Record<string, any>;
+  messages: (string | object | number | boolean | null | undefined)[];
+  callsite: CallSite;
 };
 
 /**
@@ -48,9 +49,7 @@ class Logger {
     }
 
     if (!config) {
-      throw new Error(
-        "Logger configuration is required. This is an internal error. Please submit an issue"
-      );
+      throw new Error();
     }
 
     Logger.#instance = new Logger(config!);
@@ -68,11 +67,7 @@ class Logger {
    * @param metadata - Additional metadata to include with the log record.
    * @param message - The message(s) to log. Objects will be JSON stringified.
    */
-  public log(
-    level: LogLevel,
-    metadata: Record<string, any>,
-    ...message: any[]
-  ): void {
+  public log(level: LogLevel, ...messages: any[]): void {
     if (!this.#enabled(level)) {
       return;
     }
@@ -81,10 +76,8 @@ class Logger {
       level,
       threadID: process.pid,
       timestamp: new Date(),
-      message: message
-        .map((m) => (typeof m === "object" ? JSON.stringify(m) : m))
-        .join(" "),
-      metadata,
+      messages,
+      callsite: callsite(3),
     };
 
     for (const target of this.#config.targets!) {
@@ -155,21 +148,7 @@ function clearAll(): void {
  * @param message - The message(s) to log. Objects will be JSON stringified.
  */
 function log(level: LogLevel, ...message: any[]): void {
-  Logger.build().log(level, {}, ...message);
-}
-
-/**
- * Logs a message at the specified level with additional metadata.
- * @param level - The log level for this message.
- * @param metadata - Additional metadata to include with the log record.
- * @param message - The message(s) to log. Objects will be JSON stringified.
- */
-function logWithMetadata(
-  level: LogLevel,
-  metadata: Record<string, any>,
-  ...message: any[]
-): void {
-  Logger.build().log(level, metadata, ...message);
+  Logger.build().log(level, ...message);
 }
 
 /**
@@ -181,35 +160,11 @@ function trace(...message: any[]): void {
 }
 
 /**
- * Logs a message at the Trace level with additional metadata.
- * @param metadata - Additional metadata to include with the log record.
- * @param message - The message(s) to log. Objects will be JSON stringified.
- */
-function traceWithMetadata(
-  metadata: Record<string, any>,
-  ...message: any[]
-): void {
-  logWithMetadata(LogLevel.Trace, metadata, ...message);
-}
-
-/**
  * Logs a message at the Debug level.
  * @param message - The message(s) to log. Objects will be JSON stringified.
  */
 function debug(...message: any[]): void {
   log(LogLevel.Debug, ...message);
-}
-
-/**
- * Logs a message at the Debug level with additional metadata.
- * @param metadata - Additional metadata to include with the log record.
- * @param message - The message(s) to log. Objects will be JSON stringified.
- */
-function debugWithMetadata(
-  metadata: Record<string, any>,
-  ...message: any[]
-): void {
-  logWithMetadata(LogLevel.Debug, metadata, ...message);
 }
 
 /**
@@ -221,35 +176,11 @@ function info(...message: any[]): void {
 }
 
 /**
- * Logs a message at the Info level with additional metadata.
- * @param metadata - Additional metadata to include with the log record.
- * @param message - The message(s) to log. Objects will be JSON stringified.
- */
-function infoWithMetadata(
-  metadata: Record<string, any>,
-  ...message: any[]
-): void {
-  logWithMetadata(LogLevel.Info, metadata, ...message);
-}
-
-/**
  * Logs a message at the Warn level.
  * @param message - The message(s) to log. Objects will be JSON stringified.
  */
 function warn(...message: any[]): void {
   log(LogLevel.Warn, ...message);
-}
-
-/**
- * Logs a message at the Warn level with additional metadata.
- * @param metadata - Additional metadata to include with the log record.
- * @param message - The message(s) to log. Objects will be JSON stringified.
- */
-function warnWithMetadata(
-  metadata: Record<string, any>,
-  ...message: any[]
-): void {
-  logWithMetadata(LogLevel.Warn, metadata, ...message);
 }
 
 /**
@@ -261,35 +192,11 @@ function error(...message: any[]): void {
 }
 
 /**
- * Logs a message at the Error level with additional metadata.
- * @param metadata - Additional metadata to include with the log record.
- * @param message - The message(s) to log. Objects will be JSON stringified.
- */
-function errorWithMetadata(
-  metadata: Record<string, any>,
-  ...message: any[]
-): void {
-  logWithMetadata(LogLevel.Error, metadata, ...message);
-}
-
-/**
  * Logs a message at the Fatal level.
  * @param message - The message(s) to log. Objects will be JSON stringified.
  */
 function fatal(...message: any[]): void {
   log(LogLevel.Fatal, ...message);
-}
-
-/**
- * Logs a message at the Fatal level with additional metadata.
- * @param metadata - Additional metadata to include with the log record.
- * @param message - The message(s) to log. Objects will be JSON stringified.
- */
-function fatalWithMetadata(
-  metadata: Record<string, any>,
-  ...message: any[]
-): void {
-  logWithMetadata(LogLevel.Fatal, metadata, ...message);
 }
 
 export default {
@@ -298,19 +205,16 @@ export default {
   clear,
   clearAll,
   log,
-  logWithMetadata,
   trace,
-  traceWithMetadata,
   debug,
-  debugWithMetadata,
   info,
-  infoWithMetadata,
   warn,
-  warnWithMetadata,
   error,
-  errorWithMetadata,
   fatal,
-  fatalWithMetadata,
+  LogLevel,
+  DefaultFormatter,
+  Console,
+  File,
 };
 
 export type { LogRecord };
@@ -319,7 +223,7 @@ export { LogLevel };
 /**
  * Re-Exports
  */
-export { Config } from "./config";
+export type { Config } from "./config";
 
 export { DefaultFormatter } from "./format";
 export type { Formatter } from "./format";

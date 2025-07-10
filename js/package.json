@@ -1,16 +1,21 @@
 {
   "name": "traccia",
-  "version": "1.0.0",
-  "type": "module",
-  "main": "./dist/index.js",
   "license": "MIT",
+  "repository": "https://github.com/saverioscagnoli/traccia/tree/master/js",
+  "author": "svscagn <95577971+saverioscagnoli@users.noreply.github.com>",
+  "version": "1.0.1",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
   "scripts": {
-    "build": "tsup",
-    "start": "node examples/demo.js"
+    "lint": "tsc",
+    "build": "yarn lint && tsup",
+    "example:demo": "yarn build && node examples/demo.js",
+    "example:file": "yarn build && node examples/file.js",
+    "example:formatter": "yarn build && node examples/formatter.js"
   },
   "dependencies": {
-    "chalk": "^5.4.1",
-    "resultr": "^1.0.2"
+    "chalk": "^5.4.1"
   },
   "devDependencies": {
     "@types/node": "^24.0.12",

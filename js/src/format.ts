@@ -1,25 +1,6 @@
 import chalk from "chalk";
 import { LogLevel, LogRecord } from ".";
-
-/**
- * Strips ANSI escape codes from a string.
- * This is useful for cleaning up log messages before writing them to a file or displaying them in
- * a non-ANSI-capable environment, like a file.
- *
- * @param str String to strip ANSI escape codes from.
- * @returns A string with ANSI escape codes removed.
- */
-function stripAnsi(str: string): string {
-  let st = "(?:\\u0007|\\u001B\\u005C|\\u009C)";
-  let pattern = [
-    `[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?${st})`,
-    "(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-nq-uy=><~]))",
-  ].join("|");
-
-  let regex = new RegExp(pattern, "g");
-
-  return str.replace(regex, "").replace(/\u001B\[\d+m/g, "");
-}
+import path from "path";
 
 /**
  * Formatter interface for log records.
@@ -78,43 +59,30 @@ class DefaultFormatter implements Formatter {
         break;
     }
 
-    let metadataOutput = "";
+    let t = record.timestamp
+      .toISOString()
+      .replace("T", " ")
+      .replace("Z", "")
+      .replace(/-/g, "/");
 
-    if (record.metadata) {
-      for (const [key, value] of Object.entries(record.metadata)) {
-        if (metadataOutput.length > 0) {
-          metadataOutput += ", ";
-        }
+    let timestamp = chalk.gray(t);
+    let level = levelColor(LogLevel[record.level].toLowerCase());
+    let at = `${record.callsite.line || 0}:${record.callsite.column || 0}`;
+    let loc = chalk.gray(
+      `${
+        record.callsite.file?.split(path.sep).slice(-1).join("") || "<unknown>"
+      }@${at}`
+    );
 
-        if (typeof value === "object") {
-          metadataOutput += `${key}=${JSON.stringify(value, null, 2)}`;
-        } else {
-          metadataOutput += `${key}=${value}`;
-        }
-      }
-    }
+    let message = record.messages
+      .map((m) => (typeof m === "object" ? JSON.stringify(m) : m?.toString()))
+      .join(" ");
 
-    let contextOutput = "";
+    let c = Object.entries(context).length > 0 ? JSON.stringify(context) : "";
 
-    for (const [key, value] of Object.entries(context)) {
-      if (contextOutput.length > 0) {
-        contextOutput += ", ";
-      }
-
-      if (typeof value === "object") {
-        contextOutput += `${key}=${JSON.stringify(value, null, 2)}`;
-      } else {
-        contextOutput += `${key}=${value}`;
-      }
-    }
-
-    let t = record.timestamp.toISOString().replace("T", " ").replace("Z", "");
-
-    return `[${chalk.gray(t)}] [${levelColor(
-      LogLevel[record.level].toUpperCase()
-    )}]: ${record.message} ${metadataOutput} ${contextOutput}`;
+    return `[${timestamp}] [${level}] [${loc}]: ${message} ${c}`;
   }
 }
 
-export { DefaultFormatter, stripAnsi };
+export { DefaultFormatter };
 export type { Formatter };
