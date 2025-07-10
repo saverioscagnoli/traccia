@@ -71,3 +71,7 @@ All the dates in this changelog are formatted as day/month/year.
 # 2.2.3 - 10/7/2025
 
 - Changed readme screenshot links
+
+# 2.2.4 - 10/7/2025
+
+- Fixed README
