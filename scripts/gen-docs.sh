@@ -11,6 +11,6 @@ cargo doc --no-deps
 cd ..
 
 # Copy docs to custom location
-mkdir -p doc/rust
-rm -rf doc/rust/*
-cp -r rust/target/doc/* doc/rust/
+mkdir -p docs/rust
+rm -rf docs/rust/*
+cp -r rust/target/doc/* docs/rust/
