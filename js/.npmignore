@@ -8,3 +8,5 @@ vite.config.ts
 yarn.lock
 tests
 tsconfig.json
+.logs
+examples
