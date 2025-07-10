@@ -1,12 +1,6 @@
-# Traccia
+# Traccia ✍️
 
 A flexible and configurable logging library for JavaScript/TypeScript applications.
-
-## Installation
-
-```bash
-npm install traccia
-```
 
 ## Quick Start
 
