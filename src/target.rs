@@ -234,9 +234,9 @@ impl File {
     /// # Examples
     ///
     /// ```
-    /// use logger::{Config, File, init_with_config};
+    /// use traccia::{Config, File, init_with_config, FileMode};
     ///
-    /// let file_target = File::new("logs/app.log").expect("Failed to open log file");
+    /// let file_target = File::new("logs/app.log", FileMode::Append).expect("Failed to open log file");
     /// let config = Config {
     ///     targets: vec![Box::new(file_target)],
     ///     ..Config::default()

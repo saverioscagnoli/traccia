@@ -79,3 +79,8 @@ All the dates in this changelog are formatted as day/month/year.
 # 2.2.5 - 10/7/2025
 
 - I can't fix these damn screenshots
+
+# 2.2.6 - 10/12/2025
+
+- Added the `parse_level_from_env` that checks the `RUST_LOG` environment variable.
+- Apply fixes suggested by clippy.

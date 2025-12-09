@@ -31,6 +31,10 @@ macro_rules! log {
 /// # Examples
 ///
 /// ```
+/// use traccia::{init_default, trace};
+///
+/// init_default();
+/// let item_id = 42;
 /// trace!("Processing item: {}", item_id);
 /// ```
 #[macro_export]
@@ -45,6 +49,10 @@ macro_rules! trace {
 /// # Examples
 ///
 /// ```
+/// use traccia::{init_default, debug};
+///
+/// init_default();
+/// let conn_id = 123;
 /// debug!("Connection established: {}", conn_id);
 /// ```
 #[macro_export]
@@ -59,6 +67,9 @@ macro_rules! debug {
 /// # Examples
 ///
 /// ```
+/// use traccia::{init_default, info};
+///
+/// init_default();
 /// info!("Application started");
 /// ```
 #[macro_export]
@@ -73,6 +84,10 @@ macro_rules! info {
 /// # Examples
 ///
 /// ```
+/// use traccia::{init_default, warn};
+///
+/// init_default();
+/// let usage = 85;
 /// warn!("Resource usage high: {}%", usage);
 /// ```
 #[macro_export]
@@ -87,6 +102,10 @@ macro_rules! warn {
 /// # Examples
 ///
 /// ```
+/// use traccia::{init_default, error};
+///
+/// init_default();
+/// let err = "timeout";
 /// error!("Failed to connect: {}", err);
 /// ```
 #[macro_export]
@@ -101,6 +120,10 @@ macro_rules! error {
 /// # Examples
 ///
 /// ```
+/// use traccia::{init_default, fatal};
+///
+/// init_default();
+/// let err = "configuration error";
 /// fatal!("Failed to start application: {}", err);
 /// ```
 #[macro_export]
