@@ -1,5 +1,6 @@
 use crate::{Config, DefaultFormatter, Formatter, Logger, Record, hooks};
 
+#[derive(Default)]
 pub struct DefaultLogger {
     config: Config,
 }
@@ -36,10 +37,10 @@ impl Logger for DefaultLogger {
 
         for target in &self.config.targets {
             // Check if the target has a custom filter level
-            if let Some(filter_level) = target.filter_level() {
-                if record.level < filter_level {
-                    continue;
-                }
+            if let Some(filter_level) = target.filter_level()
+                && record.level < filter_level
+            {
+                continue;
             }
 
             let target_id = target.id();
@@ -51,14 +52,6 @@ impl Logger for DefaultLogger {
             }
 
             hook_system.trigger_after_log(record.level, &target_id);
-        }
-    }
-}
-
-impl Default for DefaultLogger {
-    fn default() -> Self {
-        DefaultLogger {
-            config: Config::default(),
         }
     }
 }
