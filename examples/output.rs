@@ -1,4 +1,4 @@
-use traccia::{debug, error, fatal, info, Console, LogLevel, Output};
+use traccia::{Console, LogLevel, Output, debug, error, fatal, info};
 
 fn main() {
     traccia::init_with_config(traccia::Config {

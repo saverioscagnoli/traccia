@@ -6,19 +6,19 @@ A zero-dependency, all-in-one flexible logging framework for Rust applications.
 
 <div style="display: flex; flex-wrap: wrap; gap: 20px;">
   <div style="flex: 1 1 calc(50% - 10px); padding: 5px;">
-    <img src="https://raw.githubusercontent.com/saverioscagnoli/traccia/master/docs/1.png" alt="1" style="width: 100%;">
+    <img src="docs/screenshots/1.png" alt="1" style="width: 100%;">
   </div>
   <hr />
   <div style="flex: 1 1 calc(50% - 10px); padding: 5px;">
-    <img src="https://raw.githubusercontent.com/saverioscagnoli/traccia/master/docs/2.png" alt="2" style="width: 100%;">
+    <img src="docs/screenshots/2.png" alt="2" style="width: 100%;">
   </div>
   <hr />
   <div style="flex: 1 1 calc(50% - 10px); padding: 5px;">
-    <img src="https://raw.githubusercontent.com/saverioscagnoli/traccia/master/docs/3.png" alt="3" style="width: 100%;">
+    <img src="docs/screenshots/3.png" alt="3" style="width: 100%;">
   </div>
   <hr />
   <div style="flex: 1 1 calc(50% - 10px); padding: 5px;">
-    <img src="https://raw.githubusercontent.com/saverioscagnoli/traccia/master/docs/4.png" alt="4" style="width: 100%;">
+    <img src="docs/screenshots/4.png" alt="4" style="width: 100%;">
   </div>
 </div>
 

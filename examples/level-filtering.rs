@@ -1,4 +1,4 @@
-use traccia::{error, fatal, info, FileMode, LogLevel};
+use traccia::{FileMode, LogLevel, error, fatal, info};
 
 fn main() {
     traccia::init_with_config(traccia::Config {

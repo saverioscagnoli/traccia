@@ -1,4 +1,4 @@
-use traccia::{debug, error, fatal, info, trace, warn, LogLevel};
+use traccia::{LogLevel, debug, error, fatal, info, trace, warn};
 
 struct CustomFormatter;
 
