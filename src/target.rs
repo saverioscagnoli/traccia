@@ -80,18 +80,13 @@ impl Clone for Box<dyn Target> {
 /// Output destination for console log messages.
 ///
 /// The default output is stdout.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Output {
     /// Standard output (stdout)
+    #[default]
     Stdout,
     /// Standard error (stderr)
     Stderr,
-}
-
-impl Default for Output {
-    fn default() -> Self {
-        Output::Stdout
-    }
 }
 
 impl Default for &Output {
@@ -104,7 +99,7 @@ impl Default for &Output {
 ///
 /// This target writes log messages to the standard output (stdout) or standard error (stderr)
 /// using the Rust `println!` | `eprintln!` macro.
-#[derive(Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct Console {
     level: Option<LogLevel>,
     output: Option<Output>,
@@ -114,11 +109,7 @@ pub struct Console {
 impl Console {
     /// Creates a new console target
     pub fn new() -> Self {
-        Console {
-            level: None,
-            output: None,
-            filtered_outputs: None,
-        }
+        Self::default()
     }
 
     /// Builder method to set the custom filter level for this target.
@@ -199,16 +190,11 @@ impl Target for Console {
 /// File open mode for writing log messages.
 /// - `Append`: Open the file in append mode, preserving existing content
 /// - `Truncate`: Open the file in write mode, truncating existing content
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub enum FileMode {
+    #[default]
     Append,
     Truncate,
-}
-
-impl Default for FileMode {
-    fn default() -> Self {
-        FileMode::Append
-    }
 }
 
 /// File output target.

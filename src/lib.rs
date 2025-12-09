@@ -204,8 +204,11 @@ fn set_logger<L: Logger + 'static>(logger: L) -> Result<(), Error> {
 /// # Returns
 ///
 /// A reference to the logger if initialized, or `Error::NotInitialized` if not
-pub fn logger() -> Result<&'static Box<dyn Logger>, Error> {
-    LOGGER.get().ok_or(Error::NotInitialized)
+pub fn logger() -> Result<&'static dyn Logger, Error> {
+    LOGGER
+        .get()
+        .map(|boxed| &**boxed as &dyn Logger)
+        .ok_or(Error::NotInitialized)
 }
 
 /// Initializes the global logger with the specified minimum log level.

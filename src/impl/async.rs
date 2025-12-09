@@ -43,17 +43,17 @@ impl DefaultLogger {
 
         for target in targets {
             // Check if the target has a custom filter level
-            if let Some(filter_level) = target.filter_level() {
-                if level < filter_level {
-                    continue;
-                }
+            if let Some(filter_level) = target.filter_level()
+                && level < filter_level
+            {
+                continue;
             }
 
             let target_id = target.id();
 
             hook_system.trigger_before_log(level, &target_id);
 
-            if let Err(e) = target.write(level, &formatted) {
+            if let Err(e) = target.write(level, formatted) {
                 eprintln!("Failed to write to target: {}", e);
             }
 
@@ -76,12 +76,8 @@ impl DefaultLogger {
 
         // Drain the remaining messages
         while let Ok(message) = receiver.try_recv() {
-            match message {
-                ChannelMessage::Log(formatted, level) => {
-                    Self::process_message(&formatted, level, &targets)
-                }
-
-                _ => {}
+            if let ChannelMessage::Log(formatted, level) = message {
+                Self::process_message(&formatted, level, &targets)
             }
         }
     }

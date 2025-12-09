@@ -1,10 +1,10 @@
-use std::fmt::Display;
+//! ANSI color codes for terminal output.
+//!
+//! Provides utilities for adding color to log messages in terminal output.
+//! These colors are automatically stripped when writing to non-terminal
+//! targets like files.
 
-/// ANSI color codes for terminal output.
-///
-/// Provides utilities for adding color to log messages in terminal output.
-/// These colors are automatically stripped when writing to non-terminal
-/// targets like files.
+use std::fmt::Display;
 
 /// Terminal colors for text output.
 ///
