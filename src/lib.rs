@@ -254,3 +254,11 @@ pub fn init_with_config(config: Config) {
     let logger = DefaultLogger::new(config);
     set_logger(logger).expect("Failed to initalize logger");
 }
+
+/// Checks the `RUST_LOG` env variable
+/// and tries to parse its value
+///
+/// It's case-insensitive
+pub fn parse_level_from_env() -> Option<LogLevel> {
+    std::env::var("RUST_LOG").ok().and_then(|s| s.parse().ok())
+}
