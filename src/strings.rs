@@ -55,7 +55,7 @@ pub enum Color {
     /// Bright white color (ANSI code 97 - bg: 107)
     BrightWhite,
 
-    /// RGB color with 8-bit values for red, green, and blue components (https://gist.github.com/ConnerWill/d4b6c776b509add763e17f9f113fd25b#256-colors)
+    /// RGB color with 8-bit values for red, green, and blue components (![table](https://gist.github.com/ConnerWill/d4b6c776b509add763e17f9f113fd25b#256-colors))
     ID(u8),
 
     /// RGB color with 8-bit values for red, green, and blue components.

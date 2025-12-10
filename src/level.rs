@@ -136,7 +136,7 @@ impl TryFrom<LogLevel> for u8 {
 /// specify log levels on the command line:
 ///
 /// # Command-line examples:
-/// ```
+/// ```text
 /// # Using lowercase (default format)
 /// myapp --log-level debug
 ///
