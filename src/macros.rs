@@ -18,9 +18,9 @@ macro_rules! log {
                 module_path: Some(module_path!()),
                 file: Some(file!()),
                 line: Some(line!()),
+                context: $crate::current_context(),
             };
 
-            use $crate::Logger;
             logger.log(&record);
         }
     }};
@@ -130,5 +130,55 @@ macro_rules! error {
 macro_rules! fatal {
     ($($arg:tt)*) => {
         $crate::log!($crate::LogLevel::Fatal, $($arg)*)
+    };
+}
+
+/// Creates a new span with the given name and fields.
+///
+/// The span is active until the returned guard is dropped. All log messages
+/// within the span will include the span's context information.
+///
+/// # Syntax
+///
+/// ```ignore
+/// span!(name)
+/// span!(name, key1 => value1)
+/// span!(name, key1 => value1, key2 => value2, ...)
+/// ```
+///
+/// # Examples
+///
+/// ```
+/// use traccia::{span, info, init_default};
+///
+/// init_default();
+///
+/// fn process_request(user_id: u64) {
+///     let _span = span!("request", "user_id" => user_id);
+///     info!("Processing request");
+///     // Logs: [INFO] Processing request [request: user_id=42]
+/// }
+/// ```
+///
+/// ```
+/// use traccia::{span, info, init_default};
+///
+/// init_default();
+///
+/// fn handle_connection(conn_id: u32, ip: &str) {
+///     let _span = span!("connection", "id" => conn_id, "ip" => ip);
+///     info!("Connection established");
+///     // Logs: [INFO] Connection established [connection: id=123, ip=127.0.0.1]
+/// }
+/// ```
+#[macro_export]
+macro_rules! span {
+    ($name:expr) => {
+        $crate::enter($name, vec![])
+    };
+    ($name:expr, $($key:expr => $value:expr),+ $(,)?) => {
+        $crate::enter($name, vec![$(
+            ($key.to_string(), $value.to_string())
+        ),+])
     };
 }

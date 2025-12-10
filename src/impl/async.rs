@@ -106,7 +106,7 @@ impl Logger for DefaultLogger {
 
         let formatted = match &self.config.format {
             Some(formatter) => formatter.format(record),
-            None => DefaultFormatter.format(record),
+            None => DefaultFormatter::new().format(record),
         };
 
         let _ = self

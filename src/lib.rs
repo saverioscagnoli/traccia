@@ -30,6 +30,7 @@ mod hooks;
 mod r#impl;
 mod level;
 mod macros;
+mod span;
 mod strings;
 mod target;
 mod util;
@@ -41,9 +42,13 @@ use std::{sync::OnceLock, thread::ThreadId};
 
 // Exports
 pub use error::Error;
-pub use format::{DefaultFormatter, Formatter};
+pub use format::{
+    DefaultFormatter, Formatter, FormatterBuilder, SpanPosition, format_span_context,
+    format_span_context_with, format_with_span_position,
+};
 pub use hooks::{Hook, set_hook};
 pub use level::LogLevel;
+pub use span::{Span, SpanGuard, current_context, enter};
 pub use strings::{Color, Colorize, Style};
 pub use target::{Console, File, FileMode, Output, Target, TargetId};
 
@@ -79,6 +84,9 @@ pub struct Record {
 
     /// Optional line number in the source code where the log was generated.
     pub line: Option<u32>,
+
+    /// Context information from active spans.
+    pub context: Vec<(String, String)>,
 }
 
 /// Core trait that defines the logging behavior.
@@ -142,7 +150,7 @@ impl Config {
         Config {
             level,
             targets: vec![Box::new(target::Console::new())],
-            format: Some(Box::new(format::DefaultFormatter)),
+            format: Some(Box::new(format::DefaultFormatter::new())),
         }
     }
 }
@@ -159,7 +167,7 @@ impl Default for Config {
         Config {
             level: LogLevel::Info,
             targets: vec![Box::new(target::Console::new())],
-            format: Some(Box::new(format::DefaultFormatter)),
+            format: Some(Box::new(format::DefaultFormatter::new())),
         }
     }
 }
