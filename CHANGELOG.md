@@ -84,3 +84,7 @@ All the dates in this changelog are formatted as day/month/year.
 
 - Added the `parse_level_from_env` that checks the `RUST_LOG` environment variable.
 - Apply fixes suggested by clippy.
+
+# 2.2.7 - 10/12/2025
+
+- Fixed links in README

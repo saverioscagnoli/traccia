@@ -1,12 +1,12 @@
 [package]
 name = "traccia"
-version = "2.2.6"
+version = "2.2.7"
 edition = "2024"
 authors = ["Saverio Scagnoli <svscagn@gmail.com>"]
 description = "A zero-dependency, flexible logging framework for Rust applications"
 documentation = "https://docs.rs/traccia"
-repository = "https://github.com/saverioscagnoli/traccia/tree/master/rust"
-homepage = "https://github.com/saverioscagnoli/traccia/tree/master/rust"
+repository = "https://github.com/saverioscagnoli/traccia"
+homepage = "https://github.com/saverioscagnoli/traccia"
 license = "MIT"
 readme = "README.md"
 keywords = ["logging", "log", "logger", "async", "terminal"]
