@@ -88,3 +88,28 @@ All the dates in this changelog are formatted as day/month/year.
 # 2.2.7 - 10/12/2025
 
 - Fixed links in README
+
+# 3.0.0 - 10/12/2025
+
+- Added span-based context management for structured logging with automatic hierarchical context.
+  - New `span!` macro to create spans with key-value pairs
+  - New `Span`, `SpanGuard` types for programmatic span management
+  - New `enter()` and `current_context()` functions for working with spans
+  - Spans are thread-local and automatically cleaned up when they go out of scope
+  - Context from active spans is automatically included in all log messages
+
+- Added configurable span positioning in log output.
+  - New `SpanPosition` enum with variants: `End` (default), `Start`, `AfterLevel`, `None`
+  - Updated `DefaultFormatter` to support span positioning
+  - New convenience methods: `with_span_at_start()`, `with_span_after_level()`, `with_span_at_end()`, `without_span()`
+
+- Added formatter utilities for easier custom formatter creation.
+  - New `FormatterBuilder` for creating custom formatters with span positioning support
+  - New `format_span_context()` function for formatting span context with default styling
+  - New `format_span_context_with()` function for custom span formatting
+  - New `format_with_span_position()` helper function for consistent span positioning
+
+- Added `context` field to `Record` struct containing active span information.
+
+- Changed `DefaultFormatter` from unit struct to a configurable struct (breaking change for direct instantiation).
+  - Use `DefaultFormatter::new()` instead of `DefaultFormatter` when creating instances
