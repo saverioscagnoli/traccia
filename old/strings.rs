@@ -193,5 +193,4 @@ pub trait Style: Display {
     }
 }
 
-impl Style for str {}
-impl Style for String {}
+impl<T: Display> Style for T {}
