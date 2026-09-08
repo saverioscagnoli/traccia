@@ -1,14 +1,18 @@
-use traccia::{Console, LogLevel, Output, debug, error, fatal, info};
+use traccia::Config;
+use traccia::Console;
+use traccia::LevelFilter;
+use traccia::Output;
+use traccia::info;
+use traccia::warn;
 
 fn main() {
-    traccia::init_with_config(traccia::Config {
-        level: LogLevel::Debug,
-        targets: vec![Box::new(Console::new().output(Output::Stderr))],
-        ..Default::default()
-    });
+    traccia::init(
+        Config::empty()
+            .with_min_level(LevelFilter::Debug)
+            .with_target(Console::new(Output::Stdout, true)),
+    )
+    .unwrap();
 
-    debug!("This will be logged to stderr.");
-    info!("In fact, all messages will be logged to stderr.");
-    error!("This is an error logged to stderr!!!");
-    fatal!("This is a fatal error logged to stderr!!!");
+    info!("stdout keeps logs out of the error stream");
+    warn!("pipe with `cargo run --example output | cat` to see it");
 }

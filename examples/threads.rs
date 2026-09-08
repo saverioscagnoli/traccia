@@ -1,42 +1,31 @@
-use traccia::{LogLevel, Record};
+use std::thread;
 
-struct CustomFormatter;
-
-impl traccia::Formatter for CustomFormatter {
-    fn format(&self, record: &Record) -> String {
-        let id_str = format!("{:?}", record.thread_id);
-        let id_str = id_str.replace("ThreadId(", "").replace(")", "");
-
-        format!(
-            "[{}] [thread:{}] {}",
-            record.level.default_coloring(),
-            id_str,
-            record.message,
-        )
-    }
-}
+use traccia::Config;
+use traccia::LevelFilter;
+use traccia::debug;
+use traccia::info;
+use traccia::warn;
 
 fn main() {
-    traccia::init_with_config(traccia::Config {
-        level: LogLevel::Trace,
-        format: Some(Box::new(CustomFormatter)),
-        ..Default::default()
-    });
+    traccia::init(Config::new().with_min_level(LevelFilter::Debug)).unwrap();
 
-    let handles = (0..3)
-        .map(|i| {
-            std::thread::spawn(move || {
-                traccia::trace!("This is a trace message from thread {}", i);
-                traccia::debug!("This is a debug message from thread {}", i);
-                traccia::info!("This is an info message from thread {}", i);
-                traccia::warn!("This is a warn message from thread {}", i);
-                traccia::error!("This is an error message from thread {}", i);
-                traccia::fatal!("This is a fatal message from thread {}", i);
+    let handles: Vec<_> = (0..4)
+        .map(|id| {
+            thread::spawn(move || {
+                debug!("worker {id} starting");
+
+                for job in 0..3 {
+                    info!("worker {id} finished job {job}");
+                }
+
+                warn!("worker {id} shutting down");
             })
         })
-        .collect::<Vec<_>>();
+        .collect();
 
     for handle in handles {
         handle.join().unwrap();
     }
+
+    info!("all workers joined");
 }

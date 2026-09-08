@@ -1,14 +1,16 @@
-use traccia::{LogLevel, debug, error, fatal, info, trace, warn};
+use traccia::Config;
+use traccia::debug;
+use traccia::error;
+use traccia::info;
+use traccia::trace;
+use traccia::warn;
 
 fn main() {
-    traccia::init(LogLevel::Debug);
+    traccia::init(Config::new()).unwrap();
 
-    // This will not be logged if the log level is set to debug
-    trace!("This is a trace message");
-
-    debug!("This is a debug message");
-    info!("This is an info message");
-    warn!("This is a warn message");
-    error!("This is an error message");
-    fatal!("This is a fatal message");
+    trace!("hidden at the default level");
+    debug!("hidden at the default level");
+    info!("listening on port {}", 8080);
+    warn!("disk usage at {}%", 91);
+    error!("could not reach {}", "db-primary");
 }

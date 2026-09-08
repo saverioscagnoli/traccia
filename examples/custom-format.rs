@@ -1,28 +1,52 @@
-use traccia::{LogLevel, debug, error, fatal, info, trace, warn};
+use traccia::Color;
+use traccia::Colored;
+use traccia::Config;
+use traccia::Formatter;
+use traccia::Level;
+use traccia::LevelFilter;
+use traccia::Record;
+use traccia::Style;
+use traccia::debug;
+use traccia::error;
+use traccia::info;
+use traccia::warn;
 
-struct CustomFormatter;
+struct Compact;
 
-impl traccia::Formatter for CustomFormatter {
-    fn format(&self, record: &traccia::Record) -> String {
+impl Formatter for Compact {
+    fn format(&self, record: &Record) -> String {
+        let (glyph, color) = match record.level() {
+            Level::Trace => ("·", Color::BrightBlack),
+            Level::Debug => ("›", Color::Blue),
+            Level::Info => ("✓", Color::Green),
+            Level::Warn => ("!", Color::Yellow),
+            Level::Error => ("✗", Color::Red),
+        };
+
+        let origin = match (record.file(), record.line()) {
+            (Some(file), Some(line)) => format!("{file}:{line}"),
+            _ => record.target().to_string(),
+        };
+
         format!(
-            "{}: {}",
-            record.level.default_coloring().to_lowercase(),
-            record.message
+            "{} {} {}",
+            glyph.foreground_color(color).bold(),
+            record.args(),
+            origin.foreground_color(Color::BrightBlack).dim(),
         )
     }
 }
 
 fn main() {
-    traccia::init_with_config(traccia::Config {
-        level: LogLevel::Trace,
-        format: Some(Box::new(CustomFormatter)),
-        ..Default::default()
-    });
+    traccia::init(
+        Config::new()
+            .with_min_level(LevelFilter::Debug)
+            .with_formatter(Compact),
+    )
+    .unwrap();
 
-    trace!("This is a trace message");
-    debug!("This is a debug message");
-    info!("This is an info message");
-    warn!("This is a warn message");
-    error!("This is an error message");
-    fatal!("This is a fatal message");
+    debug!("cache warm");
+    info!("checkout completed for order {}", 41822);
+    warn!("payment provider slow: {}ms", 1840);
+    error!("refund failed");
 }

@@ -1,5 +1,1 @@
-target
-.logs
-logs
-node_modules
-dist
+/target
