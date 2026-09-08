@@ -1,93 +1,44 @@
 All the dates in this changelog are formatted as day/month/year.
 
-# 0.2.0 - 3/3/2025
+# 4.0.0 - 8/9/2026
 
-- Added `Debug, Clone, Copy, PartialEq, Eq` to `Color`.
+- Rewrote the crate on top of the `log` facade. `Logger` implements `log::Log`, so
+  anything in your dependency tree that logs through `log` now goes through traccia too.
+  This also means traccia is no longer dependency free.
 
-- Added `mode` parameter to the file target,
-  to specify whether to append to or to truncate the file on start.
+- Removed the custom `LogLevel`, `Record` and logging macros. `Level`, `LevelFilter`,
+  `Record` and the `trace!` through `error!` macros are re-exported from `log`.
 
-- Added a `thread_id` field to the record structure, to identify the thread
-  where the log was generated.
+- Replaced `init(level)`, `init_default()` and `init_with_config()` with a single
+  `init(Config)`. `Config::new()` is stderr at the info level, `Config::empty()` starts
+  with no targets.
 
-  - The `threads` example was updated to demonstrate this functionality.
+- Added module filters, through `with_module_filter`. The longest matching prefix wins,
+  and prefixes match on module boundaries, so `myapp` does not catch `myapp_extra`.
 
-# 0.2.1 - 3/3/2025
+- Console color is detected instead of assumed. `Console::default()` and
+  `Console::auto()` turn it on only when the stream is a terminal and `NO_COLOR` is
+  unset. `Console::new()` and `with_color()` still let you decide yourself.
 
-- Added some preview image to README.
+- Escape sequences are stripped whenever color is off, not just for files. `strip_ansi`
+  understands OSC sequences now, so a hyperlink keeps its text instead of leaking the
+  URL into the output.
 
-# 0.2.2 - 3/3/2025
+- Target write errors no longer vanish. A failed write falls back to stderr.
 
-- Removed the docs folder from the package, that caused the size to go up to 450 KiB
-- Renamed CHANGELOG to CHANGELOG.md
-- Replaced `///` comments with `//!` comments in `lib.rs`
+- `fatal!` logs, flushes every target and exits the process. It takes an optional exit
+  code, `fatal!(code: 78, "...")`, and uses 1 otherwise.
 
-# 1.2.2 - 4/3/2025
+- Removed spans, hooks, the async logger, the `clap` feature, `parse_level_from_env`,
+  the `atexit` shutdown hook, target ids and per-level output.
 
-- Removed the `flush` function and changed all examples accordingly.
-- Added a wrapper around libc's `atexit` to create a shutdown hook that flushes the log buffer automatically.
+- Renamed `Colorize` to `Colored`, along with its `color` and `background` methods,
+  which are now `foreground_color` and `background_color`. `Color::ID` and `Color::RGB`
+  are now `Color::Fixed` and `Color::Rgb`.
 
-# 1.3.2 - 5/3/2025
+- Replaced `FileMode` with a `clean` flag on `File::new`.
 
-- Added the `style` trait, that enables the user for more string customization.
-- Added the `background` function to the `Colorize` trait, so that the user can change the background color of the contents.
-
-# 1.4.2 - 9/3/2025
-
-- Added the `Fatal` LogLevel variant, useful for logging errors that cause the program to stop.
-- Added the possibility to filter logs for specific targets (like only logging fatal errors to files.)
-
-# 2.0.0 - 4/4/2025
-
-- Added the `level` parameter to the `write` trait function for `Target`, which breaks current custom implementations.
-
-- Added the possibility to make console write to a custom output `stdout` or `stderr`, both globally and per-level.
-
-# 2.0.1 - 10/4/2025
-
-- Added `FromStr` implementation for `LogLevel`.
-- Added `TryFrom` implementation from `LogLevel` to `u8`.
-- Added `TryFrom` implementation from `u8` to `LogLevel`.
-- Added `Error::ParseLogLevel` to indicate whether these parsing methods fail.
-
-# 2.1.1 - 10/4/2025
-
-- Added a `clap` feature to interface with the clap api
-- Now `LogLevel` can be directly used as a field in a struct with a `Parser` implementation
-- Added `clap` example
-
-# 2.2.1 - 12/4/2025
-
-- Added an hook system that allows the user to perform actions at certains event in the logging process
-- Added the `Hook` enum
-- Added an optional function `id` to the `Target` struct that is used to identify the target in hooks,
-  (i.e.) execute only if target is console
-
-# 2.2.2 - 10/7/2025
-
-- Moved project into a monorepo
-- Changed link metadata
-
-# 2.2.3 - 10/7/2025
-
-- Changed readme screenshot links
-
-# 2.2.4 - 10/7/2025
-
-- Fixed README
-
-# 2.2.5 - 10/7/2025
-
-- I can't fix these damn screenshots
-
-# 2.2.6 - 10/12/2025
-
-- Added the `parse_level_from_env` that checks the `RUST_LOG` environment variable.
-- Apply fixes suggested by clippy.
-
-# 2.2.7 - 10/12/2025
-
-- Fixed links in README
+- Added back a `flush` function.
 
 # 3.0.0 - 10/12/2025
 
@@ -113,3 +64,92 @@ All the dates in this changelog are formatted as day/month/year.
 
 - Changed `DefaultFormatter` from unit struct to a configurable struct (breaking change for direct instantiation).
   - Use `DefaultFormatter::new()` instead of `DefaultFormatter` when creating instances
+
+# 2.2.7 - 10/12/2025
+
+- Fixed links in README
+
+# 2.2.6 - 10/12/2025
+
+- Added the `parse_level_from_env` that checks the `RUST_LOG` environment variable.
+- Apply fixes suggested by clippy.
+
+# 2.2.5 - 10/7/2025
+
+- I can't fix these damn screenshots
+
+# 2.2.4 - 10/7/2025
+
+- Fixed README
+
+# 2.2.3 - 10/7/2025
+
+- Changed readme screenshot links
+
+# 2.2.2 - 10/7/2025
+
+- Moved project into a monorepo
+- Changed link metadata
+
+# 2.2.1 - 12/4/2025
+
+- Added an hook system that allows the user to perform actions at certains event in the logging process
+- Added the `Hook` enum
+- Added an optional function `id` to the `Target` struct that is used to identify the target in hooks,
+  (i.e.) execute only if target is console
+
+# 2.1.1 - 10/4/2025
+
+- Added a `clap` feature to interface with the clap api
+- Now `LogLevel` can be directly used as a field in a struct with a `Parser` implementation
+- Added `clap` example
+
+# 2.0.1 - 10/4/2025
+
+- Added `FromStr` implementation for `LogLevel`.
+- Added `TryFrom` implementation from `LogLevel` to `u8`.
+- Added `TryFrom` implementation from `u8` to `LogLevel`.
+- Added `Error::ParseLogLevel` to indicate whether these parsing methods fail.
+
+# 2.0.0 - 4/4/2025
+
+- Added the `level` parameter to the `write` trait function for `Target`, which breaks current custom implementations.
+
+- Added the possibility to make console write to a custom output `stdout` or `stderr`, both globally and per-level.
+
+# 1.4.2 - 9/3/2025
+
+- Added the `Fatal` LogLevel variant, useful for logging errors that cause the program to stop.
+- Added the possibility to filter logs for specific targets (like only logging fatal errors to files.)
+
+# 1.3.2 - 5/3/2025
+
+- Added the `style` trait, that enables the user for more string customization.
+- Added the `background` function to the `Colorize` trait, so that the user can change the background color of the contents.
+
+# 1.2.2 - 4/3/2025
+
+- Removed the `flush` function and changed all examples accordingly.
+- Added a wrapper around libc's `atexit` to create a shutdown hook that flushes the log buffer automatically.
+
+# 0.2.2 - 3/3/2025
+
+- Removed the docs folder from the package, that caused the size to go up to 450 KiB
+- Renamed CHANGELOG to CHANGELOG.md
+- Replaced `///` comments with `//!` comments in `lib.rs`
+
+# 0.2.1 - 3/3/2025
+
+- Added some preview image to README.
+
+# 0.2.0 - 3/3/2025
+
+- Added `Debug, Clone, Copy, PartialEq, Eq` to `Color`.
+
+- Added `mode` parameter to the file target,
+  to specify whether to append to or to truncate the file on start.
+
+- Added a `thread_id` field to the record structure, to identify the thread
+  where the log was generated.
+
+  - The `threads` example was updated to demonstrate this functionality.
