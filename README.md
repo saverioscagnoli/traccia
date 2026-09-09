@@ -10,7 +10,7 @@ in your dependency tree that logs through `log` goes through traccia too.
 
 ```toml
 [dependencies]
-traccia = "4.0.0"
+traccia = "4.1.0"
 ```
 
 ## Usage
@@ -76,7 +76,40 @@ let Some(config) = load_config(path) else {
 };
 ```
 
-The exit code defaults to 1 if you leave off `code:`.
+The exit code defaults to 1 if you leave off `code:`. It needs the `std` feature, since there
+is no process to exit without it.
+
+## no_std
+
+The `std` feature is on by default. Turn it off and the crate is `no_std`, needing only a
+global allocator:
+
+```toml
+[dependencies]
+traccia = { version = "4.1.0", default-features = false }
+```
+
+Levels, module filters, `Formatter`, `Colored`, `Style` and `strip_ansi` work the same. What
+goes away is everything that needs the operating system: the `Console` and `File` targets, and
+the `fatal!` macro. `Config::new()` then starts with no targets at all, so implement `Target`
+for whatever you write to:
+
+```rust
+use core::error::Error;
+
+use traccia::{Config, Level, Target};
+
+struct Serial;
+
+impl Target for Serial {
+    fn write(&self, _: Level, message: &str) -> Result<(), Box<dyn Error>> {
+        // however this board writes bytes
+        Ok(())
+    }
+}
+
+traccia::init(Config::new().with_target(Serial)).unwrap();
+```
 
 ## Examples
 

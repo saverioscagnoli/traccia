@@ -1,5 +1,12 @@
 All the dates in this changelog are formatted as day/month/year.
 
+# 4.1.0 - 9/9/2026
+
+- Added a default `std` feature. With `default-features = false` the crate is `no_std`
+  and needs only an allocator. Levels, module filters, formatters, `Colored`, `Style`
+  and `strip_ansi` all still work; the `Console` and `File` targets and the `fatal!`
+  macro need `std`, and `Config::new()` starts with no targets without it.
+
 # 4.0.0 - 8/9/2026
 
 - Rewrote the crate on top of the `log` facade. `Logger` implements `log::Log`, so

@@ -13,11 +13,39 @@
 //! [`Config`] decides the level, where lines go and how they look. Implement [`Target`]
 //! to send them somewhere other than the console or a file, and [`Formatter`] to change
 //! their shape.
+//!
+//! # `no_std`
+//!
+//! The `std` feature is on by default. Turn it off and the crate becomes `no_std`,
+//! needing only a global allocator:
+//!
+//! ```toml
+//! [dependencies]
+//! traccia = { version = "4.1.0", default-features = false }
+//! ```
+//!
+//! Levels, module filters, [`Formatter`], [`Colored`], [`Style`] and [`strip_ansi`] all
+//! work the same. What goes away is everything that needs the operating system: the
+//! `Console` and `File` targets, and the `fatal!` macro. [`Config::new`] then starts
+//! with no targets at all, so implement [`Target`] for whatever you write to.
 
+#![cfg_attr(not(feature = "std"), no_std)]
+
+extern crate alloc;
+
+#[cfg(feature = "std")]
+mod console;
+#[cfg(feature = "std")]
+mod file;
 mod strings;
 mod style;
 mod target;
 
+use alloc::boxed::Box;
+use alloc::string::String;
+use alloc::vec::Vec;
+
+#[cfg(feature = "std")]
 use std::sync::OnceLock;
 
 pub use log::Level;
@@ -30,15 +58,18 @@ pub use log::info;
 pub use log::trace;
 pub use log::warn;
 
+#[cfg(feature = "std")]
+pub use crate::console::Console;
+#[cfg(feature = "std")]
+pub use crate::console::Output;
+#[cfg(feature = "std")]
+pub use crate::file::File;
 pub use crate::strings::strip_ansi;
 pub use crate::style::Color;
 pub use crate::style::Colored;
 pub use crate::style::DefaultFormatter;
 pub use crate::style::Formatter;
 pub use crate::style::Style;
-pub use crate::target::Console;
-pub use crate::target::File;
-pub use crate::target::Output;
 pub use crate::target::Target;
 
 /// The logger traccia hands to the `log` facade.
@@ -57,7 +88,8 @@ impl Logger {
 
         for t in &self.targets {
             if t.write(record.level(), &message).is_err() {
-                eprintln!("{}: {}", record.level().as_str(), message);
+                #[cfg(feature = "std")]
+                std::eprintln!("{}: {}", record.level().as_str(), message);
             }
         }
     }
@@ -96,7 +128,8 @@ impl log::Log for Logger {
     fn flush(&self) {
         for t in &self.targets {
             if t.flush().is_err() {
-                eprintln!("Failed to flush target");
+                #[cfg(feature = "std")]
+                std::eprintln!("Failed to flush target");
             }
         }
     }
@@ -108,6 +141,8 @@ impl log::Log for Logger {
 /// same thing with no targets, so you can choose them yourself.
 ///
 /// ```no_run
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// # #[cfg(feature = "std")] {
 /// use traccia::{Config, Console, File, LevelFilter, Output};
 ///
 /// traccia::init(
@@ -117,7 +152,9 @@ impl log::Log for Logger {
 ///         .with_target(File::new("app.log", true)?)
 ///         .with_module_filter("myapp::db", LevelFilter::Trace),
 /// )?;
-/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// # }
+/// # Ok(())
+/// # }
 /// ```
 pub struct Config {
     /// Records below this level are dropped, unless a module filter says otherwise.
@@ -135,9 +172,14 @@ pub struct Config {
 
 impl Default for Config {
     fn default() -> Self {
+        #[cfg(feature = "std")]
+        let targets: Vec<Box<dyn Target>> = alloc::vec![Box::new(Console::default())];
+        #[cfg(not(feature = "std"))]
+        let targets: Vec<Box<dyn Target>> = Vec::new();
+
         Self {
             min_level: log::LevelFilter::Info,
-            targets: vec![Box::new(Console::default())],
+            targets,
             formatter: Box::new(DefaultFormatter),
             module_filters: Vec::new(),
         }
@@ -145,7 +187,8 @@ impl Default for Config {
 }
 
 impl Config {
-    /// Stderr, at the info level.
+    /// Stderr, at the info level. Without the `std` feature there is no console to
+    /// write to, so this is the same as [`empty`](Self::empty).
     pub fn new() -> Self {
         Self::default()
     }
@@ -216,7 +259,22 @@ impl Config {
     }
 }
 
+#[cfg(feature = "std")]
 static LOGGER: OnceLock<Logger> = OnceLock::new();
+
+/// Keeps the first logger built, so a second [`init`] cannot replace it.
+#[cfg(feature = "std")]
+fn install(config: Config) -> &'static Logger {
+    LOGGER.get_or_init(|| config.build_logger())
+}
+
+/// Without `std` there is no `OnceLock`, so the logger is leaked instead. `log` still
+/// refuses the second one, which costs one leaked logger on a misuse that only ever
+/// happens at startup.
+#[cfg(not(feature = "std"))]
+fn install(config: Config) -> &'static Logger {
+    Box::leak(Box::new(config.build_logger()))
+}
 
 /// Installs the logger.
 ///
@@ -224,8 +282,8 @@ static LOGGER: OnceLock<Logger> = OnceLock::new();
 /// return an error, which is also what you get if something else already claimed the
 /// `log` facade.
 pub fn init(config: Config) -> Result<(), log::SetLoggerError> {
-    let logger = LOGGER.get_or_init(|| config.build_logger());
-    let max = std::iter::once(logger.min_level)
+    let logger = install(config);
+    let max = core::iter::once(logger.min_level)
         .chain(logger.module_filters.iter().map(|(_, l)| *l))
         .max()
         .unwrap_or(logger.min_level);
@@ -243,8 +301,9 @@ pub fn flush() {
     log::logger().flush();
 }
 
+#[cfg(feature = "std")]
 #[doc(hidden)]
-pub fn __fatal(args: std::fmt::Arguments, target: &str, file: &str, line: u32, code: i32) -> ! {
+pub fn __fatal(args: core::fmt::Arguments, target: &str, file: &str, line: u32, code: i32) -> ! {
     match LOGGER.get() {
         Some(logger) => {
             logger.emit(
@@ -259,7 +318,7 @@ pub fn __fatal(args: std::fmt::Arguments, target: &str, file: &str, line: u32, c
             );
             log::Log::flush(logger);
         }
-        None => eprintln!("fatal: {args}"),
+        None => std::eprintln!("fatal: {args}"),
     }
 
     std::process::exit(code)
@@ -274,6 +333,9 @@ pub fn __fatal(args: std::fmt::Arguments, target: &str, file: &str, line: u32, c
 /// ```
 ///
 /// The exit code is 1 unless you pass `code:`.
+///
+/// Needs the `std` feature, since there is no process to exit without it.
+#[cfg(feature = "std")]
 #[macro_export]
 macro_rules! fatal {
     (code: $code:expr, $($arg:tt)*) => {

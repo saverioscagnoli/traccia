@@ -1,6 +1,6 @@
 [package]
 name = "traccia"
-version = "4.0.0"
+version = "4.1.0"
 edition = "2024"
 authors = ["Saverio Scagnoli <svscagn@gmail.com>"]
 description = "Small and flexible logging framework"
@@ -10,5 +10,56 @@ license = "MIT"
 keywords = ["logging", "log", "logger", "terminal"]
 categories = ["development-tools::debugging"]
 
+[features]
+default = ["std"]
+
+# Console and File targets, terminal color detection, and `fatal!`. Without it the
+# crate is `no_std`, and needs only `alloc`.
+std = ["log/std"]
+
 [dependencies]
-log = { version = "0.4.34", features = ["std"] }
+log = { version = "0.4.34", default-features = false }
+
+[package.metadata.docs.rs]
+all-features = true
+
+# Every example is an ordinary program, so none of them build without `std`.
+[[example]]
+name = "basic"
+required-features = ["std"]
+
+[[example]]
+name = "custom-format"
+required-features = ["std"]
+
+[[example]]
+name = "custom-target"
+required-features = ["std"]
+
+[[example]]
+name = "fatal"
+required-features = ["std"]
+
+[[example]]
+name = "file"
+required-features = ["std"]
+
+[[example]]
+name = "levels"
+required-features = ["std"]
+
+[[example]]
+name = "module-filter"
+required-features = ["std"]
+
+[[example]]
+name = "output"
+required-features = ["std"]
+
+[[example]]
+name = "styling"
+required-features = ["std"]
+
+[[example]]
+name = "threads"
+required-features = ["std"]

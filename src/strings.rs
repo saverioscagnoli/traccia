@@ -1,3 +1,5 @@
+use alloc::string::String;
+
 /// Drops CSI and OSC escape sequences and keeps everything else.
 ///
 /// A hyperlink loses its wrapper but keeps its visible text. An `ESC` followed by
