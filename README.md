@@ -10,7 +10,7 @@ in your dependency tree that logs through `log` goes through traccia too.
 
 ```toml
 [dependencies]
-traccia = "4.1.0"
+traccia = "4.1.1"
 ```
 
 ## Usage

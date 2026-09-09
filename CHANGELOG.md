@@ -1,5 +1,9 @@
 All the dates in this changelog are formatted as day/month/year.
 
+# 4.1.1 - 9/9/2026
+
+- Re-exported `log::log!`.
+
 # 4.1.0 - 9/9/2026
 
 - Added a default `std` feature. With `default-features = false` the crate is `no_std`
