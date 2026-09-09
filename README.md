@@ -1,6 +1,17 @@
-# traccia
+<h1 align="center">traccia</h1>
 
-A small logging framework for Rust, built on top of the [`log`](https://docs.rs/log) facade.
+<p align="center">
+  A small logging framework for Rust, built on top of the
+  <a href="https://docs.rs/log"><code>log</code></a> facade.
+</p>
+
+<p align="center">
+  <a href="https://crates.io/crates/traccia"><img alt="crates.io" src="https://img.shields.io/crates/v/traccia.svg?style=flat-square"></a>
+  <a href="https://crates.io/crates/traccia"><img alt="downloads" src="https://img.shields.io/crates/d/traccia.svg?style=flat-square"></a>
+  <a href="https://docs.rs/traccia"><img alt="docs.rs" src="https://img.shields.io/docsrs/traccia?style=flat-square"></a>
+  <a href="#license"><img alt="license" src="https://img.shields.io/crates/l/traccia.svg?style=flat-square"></a>
+  <img alt="no_std" src="https://img.shields.io/badge/no__std-compatible-blue?style=flat-square">
+</p>
 
 You get the usual `trace!`, `debug!`, `info!`, `warn!` and `error!` macros, plus configurable
 output targets, formatting and per module levels. Because it implements `log::Log`, anything
@@ -10,7 +21,7 @@ in your dependency tree that logs through `log` goes through traccia too.
 
 ```toml
 [dependencies]
-traccia = "4.1.1"
+traccia = "4.1.2"
 ```
 
 ## Usage

@@ -1,5 +1,9 @@
 All the dates in this changelog are formatted as day/month/year.
 
+# 4.1.2 - 9/9/2026
+
+- Updated README.
+
 # 4.1.1 - 9/9/2026
 
 - Re-exported `log::log!`.

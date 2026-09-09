@@ -1,6 +1,6 @@
 [package]
 name = "traccia"
-version = "4.1.1"
+version = "4.1.2"
 edition = "2024"
 authors = ["Saverio Scagnoli <svscagn@gmail.com>"]
 description = "Small and flexible logging framework"
