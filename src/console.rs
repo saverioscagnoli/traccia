@@ -75,7 +75,7 @@ impl Console {
 }
 
 impl Target for Console {
-    fn write(&self, _: log::Level, message: &str) -> Result<(), Box<dyn error::Error>> {
+    fn write(&self, _: crate::Level, message: &str) -> Result<(), Box<dyn error::Error>> {
         let message = if self.colored {
             Cow::Borrowed(message)
         } else {

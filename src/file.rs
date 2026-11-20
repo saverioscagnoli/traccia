@@ -37,7 +37,7 @@ impl File {
 }
 
 impl Target for File {
-    fn write(&self, _: log::Level, message: &str) -> Result<(), Box<dyn error::Error>> {
+    fn write(&self, _: crate::Level, message: &str) -> Result<(), Box<dyn error::Error>> {
         let mut file = self.mu.lock().unwrap_or_else(|e| e.into_inner());
         let message = strings::strip_ansi(message);
 
