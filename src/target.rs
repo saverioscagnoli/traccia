@@ -9,7 +9,7 @@ use core::error;
 /// `std` feature is off.
 pub trait Target: Send + Sync {
     /// Writes one already formatted line.
-    fn write(&self, level: log::Level, message: &str) -> Result<(), Box<dyn error::Error>>;
+    fn write(&self, level: crate::Level, message: &str) -> Result<(), Box<dyn error::Error>>;
 
     /// Pushes anything buffered. Called by `log::logger().flush()` and by `fatal!`.
     fn flush(&self) -> Result<(), Box<dyn error::Error>> {

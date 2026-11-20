@@ -154,20 +154,20 @@ impl<T: fmt::Display> Style for T {}
 /// and let the target strip it when it is not wanted.
 pub trait Formatter: Send + Sync {
     /// Builds the line. Ends without a newline; targets add their own.
-    fn format(&self, record: &log::Record) -> String;
+    fn format(&self, record: &crate::Record) -> String;
 }
 
 /// `[INFO] [module] message`, with the level in color and the module dimmed.
 pub struct DefaultFormatter;
 
 impl Formatter for DefaultFormatter {
-    fn format(&self, record: &log::Record) -> String {
+    fn format(&self, record: &crate::Record) -> String {
         let (name, color) = match record.level() {
-            log::Level::Trace => ("TRCE", Color::Cyan),
-            log::Level::Debug => ("DEBG", Color::Magenta),
-            log::Level::Info => ("INFO", Color::Green),
-            log::Level::Warn => ("WARN", Color::Yellow),
-            log::Level::Error => ("ERRO", Color::Red),
+            crate::Level::Trace => ("TRCE", Color::Cyan),
+            crate::Level::Debug => ("DEBG", Color::Magenta),
+            crate::Level::Info => ("INFO", Color::Green),
+            crate::Level::Warn => ("WARN", Color::Yellow),
+            crate::Level::Error => ("ERRO", Color::Red),
         };
 
         let level = format!("[{}]", name).foreground_color(color);

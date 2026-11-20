@@ -40,6 +40,7 @@ mod file;
 mod strings;
 mod style;
 mod target;
+mod util;
 
 use alloc::boxed::Box;
 use alloc::string::String;
@@ -159,7 +160,7 @@ impl log::Log for Logger {
 /// ```
 pub struct Config {
     /// Records below this level are dropped, unless a module filter says otherwise.
-    pub min_level: log::LevelFilter,
+    pub min_level: LevelFilter,
 
     /// Every target gets every line that survives filtering.
     pub targets: Vec<Box<dyn Target>>,
@@ -168,7 +169,7 @@ pub struct Config {
     pub formatter: Box<dyn Formatter>,
 
     /// Per module level overrides, longest matching prefix first.
-    pub module_filters: Vec<(String, log::LevelFilter)>,
+    pub module_filters: Vec<(String, LevelFilter)>,
 }
 
 impl Default for Config {
@@ -179,7 +180,7 @@ impl Default for Config {
         let targets: Vec<Box<dyn Target>> = Vec::new();
 
         Self {
-            min_level: log::LevelFilter::Info,
+            min_level: LevelFilter::Info,
             targets,
             formatter: Box::new(DefaultFormatter),
             module_filters: Vec::new(),
@@ -197,7 +198,7 @@ impl Config {
     /// Info level with no targets at all. Pair it with [`with_target`](Self::with_target).
     pub fn empty() -> Self {
         Self {
-            min_level: log::LevelFilter::Info,
+            min_level: LevelFilter::Info,
             targets: Vec::new(),
             formatter: Box::new(DefaultFormatter),
             module_filters: Vec::new(),
@@ -205,7 +206,7 @@ impl Config {
     }
 
     /// Sets the level below which records are thrown away.
-    pub fn with_min_level(mut self, level: log::LevelFilter) -> Self {
+    pub fn with_min_level(mut self, level: LevelFilter) -> Self {
         self.min_level = level;
         self
     }
@@ -242,7 +243,7 @@ impl Config {
     /// The longest matching prefix wins, so a filter on `myapp::db` beats one on
     /// `myapp`. Prefixes match on module boundaries, so `myapp` does not catch
     /// `myapp_extra`.
-    pub fn with_module_filter<T>(mut self, module: T, level: log::LevelFilter) -> Self
+    pub fn with_module_filter<T>(mut self, module: T, level: LevelFilter) -> Self
     where
         T: Into<String>,
     {
@@ -310,7 +311,7 @@ pub fn __fatal(args: core::fmt::Arguments, target: &str, file: &str, line: u32, 
             logger.emit(
                 &log::Record::builder()
                     .args(args)
-                    .level(log::Level::Error)
+                    .level(Level::Error)
                     .target(target)
                     .module_path(Some(target))
                     .file(Some(file))
