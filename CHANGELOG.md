@@ -1,5 +1,15 @@
 All the dates in this changelog are formatted as day/month/year.
 
+# 4.2.2 - 20/11/2026
+
+- Added `debug_or` macro to define adaptive level filter for debug builds.
+- Added `debug_or_info` macro.
+- Added `debug_or_warn` macro.
+- Added `debug_or_error` macro.
+- Changed `log::` to `crate::` definitions in trait functions so that 
+  don't have to install log to shut the compiler up when auto-completing
+  with rust-analyzer, or change the definitions manually.
+
 # 4.1.2 - 9/9/2026
 
 - Updated README.
